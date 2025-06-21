@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<!--http://localhost:8888/call/?service=Post&method=get_post-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Reverse Order</title>
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body style="min-height: 100vh;" class="d-flex">
+		<div class="d-flex flex-column m-auto">
+			<h1> 방명록 </h1>
+			<div id="post_area">
+			</div>
+			<div class="d-flex row g-2 align-items-center">
+				<div class="col-auto">
+					<input type="text" placeholder="내용을 입력해주세요" id="post_title"/>
+				</div>
+				<div class="col-auto">
+					<button type="button" class="btn btn-primary" id="new_post">
+						작성
+					</button>
+				</div>
+			</div>
+		</div>
+		<script src="/static/js/bootstrap.bundle.min.js" ></script>
+		<script src="/static/js/jquery-3.7.1.min.js" ></script>
+		<script>
+function selectData() {
+	$.get(
+		'/call/?service=Post&method=get_post',
+		function (data) {
+			if (data.status != 'ok') {
+				throw data.msg;
+			}
+			$('#post_area').empty();
+			if (data.post_list.length > 0) {
+				$('#post_area').removeClass('text-secondary');
+				for (var i = 0; i < data.post_list.length; i++) {
+					$('#post_area').append(
+						$(`<div class="border mb-1 p-2">
+							${data.post_list[i].TITLE}
+							<button type="button" class="btn btn-danger float-end p-1" onclick="deletePost(${data.post_list[i].POST_ID})">×</button>
+						   </div>`)
+					);
+				}
+			} else {
+				$('#post_area').text('아직 작성된 글이 없습니다.')
+							   .addClass('text-secondary');
+			}
+		}
+	);
+}
+function deletePost(post_id) {
+	$.ajax({
+		type: 'POST',
+		url: '/call/?service=Post&method=delete_post',
+		data: JSON.stringify({
+			POST_ID: post_id
+		}),
+		success: function (data) {
+			if (data.status != 'ok') {
+				throw data.msg;
+			}
+			$('#post_title').val(null);
+			selectData();
+		},
+		contentType: 'application/json',
+		dataType: 'json'
+	});
+}
+document.body.onload = function () {
+	selectData();
+	$('#new_post').on(
+		'click',
+		function () {
+			$.ajax({
+				type: 'POST',
+				url: '/call/?service=Post&method=new_post',
+				data: JSON.stringify({
+					TITLE: $('#post_title').val()
+				}),
+				success: function (data) {
+					if (data.status != 'ok') {
+						throw data.msg;
+					}
+					$('#post_title').val(null);
+					selectData();
+				},
+				contentType: 'application/json',
+				dataType: 'json'
+			});
+		}
+	);
+};
+
+		</script>
+	</body>
+
+</html>
