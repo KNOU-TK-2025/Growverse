@@ -32,7 +32,8 @@
 		</div>
 		<script src="/static/js/bootstrap.bundle.min.js" ></script>
 		<script src="/static/js/jquery-3.7.1.min.js" ></script>
-		<script>
+	</body>
+<script>
 function selectData() {
 	$.get(
 		'/call/?service=Post&method=get_post',
@@ -49,9 +50,12 @@ function selectData() {
 											${data.post_list[i].TITLE}
 										</a>
 									   </div>`);
-				    grid_item.append($('<img>',{src: '/static/img/like.png', width: "1em", height: "1em"}));
-				    grid_item.append($(`<a class="mx-2"> ${data.post_list[i].LIKE_CNT} </a>`));
-				    grid_item.append($('<button type="button" class="btn btn-danger float-end p-1" onclick="deletePost(${data.post_list[i].POST_ID})">×</button>'));
+					var img_button = $('<img>',{src: '/static/img/like.png', width: "1em", height: "1em"});
+					grid_item.append(img_button);
+					img_button.attr('post_id', data.post_list[i].POST_ID);
+					img_button.click(() => { addLikeCnt($(this).attr('post_id')); });
+					grid_item.append($(`<a class="mx-2"> ${data.post_list[i].LIKE_CNT} </a>`));
+					grid_item.append($('<button type="button" class="btn btn-danger float-end p-1" onclick="deletePost(${data.post_list[i].POST_ID})">×</button>'));
 					$('#post_area').append(grid_item);
 				}
 			} else {
@@ -79,6 +83,9 @@ function deletePost(post_id) {
 		dataType: 'json'
 	});
 }
+function addLikeCnt() {
+	alert('따봉 버튼을 눌렀습니다!');
+}
 document.body.onload = function () {
 	selectData();
 	$('#new_post').on(
@@ -104,7 +111,6 @@ document.body.onload = function () {
 	);
 };
 
-		</script>
-	</body>
+</script>
 
 </html>
