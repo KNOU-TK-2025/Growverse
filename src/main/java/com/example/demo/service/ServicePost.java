@@ -26,6 +26,7 @@ public class ServicePost {
         List<Map<String, Object>> post_list = null;
         post_list = daoPost.Select01();
 
+        System.out.println(">>>> Select01 호출 결과: " + post_list);
         result.put("post_list", post_list);
     }
 
@@ -33,11 +34,7 @@ public class ServicePost {
         this.setup();
         Map<String, Object> daoParam = new HashMap<>();
 
-        System.out.println("123213" + param.toString() + "<<<<<");
-        System.out.println("123213" + param.keySet() + "<<<<<");
-        System.out.println("123213" + param.get("TITLE") + "<<<<<");
         daoParam.put("TITLE", param.get("TITLE"));
-        System.out.println(">>>>>>" + daoParam.toString() + "<<<<<");
 
         daoPost.Insert01(daoParam);
     }

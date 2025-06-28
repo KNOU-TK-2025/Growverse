@@ -6,15 +6,16 @@
 	<select id="Select01" resultType="java.util.Map" parameterType="java.util.Map">
 		SELECT T1.POST_ID
 			 , T1.TITLE
+		     , IFNULL(T1.LIKE_CNT, 0) AS LIKE_CNT
 		  FROM TB_POSTS T1
 	</select>
 	<insert id="Insert01" parameterType="java.util.Map">
 		INSERT INTO TB_POSTS (
-		  TITLE
+		TITLE
 		)
 		VALUES (
-		 #{TITLE}
-	    )
+		#{TITLE}
+		)
 	</insert>
 	<delete id="Delete01" parameterType="java.util.Map">
 		DELETE FROM TB_POSTS

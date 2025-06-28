@@ -50,7 +50,7 @@ function selectData() {
 										</a>
 									   </div>`);
 				    grid_item.append($('<img>',{src: '/static/img/like.png', width: "1em", height: "1em"}));
-				    grid_item.append($('<a class="mx-2"> 0 </a>'));
+				    grid_item.append($(`<a class="mx-2"> ${data.post_list[i].LIKE_CNT} </a>`));
 				    grid_item.append($('<button type="button" class="btn btn-danger float-end p-1" onclick="deletePost(${data.post_list[i].POST_ID})">×</button>'));
 					$('#post_area').append(grid_item);
 				}
