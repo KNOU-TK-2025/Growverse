@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+      * {
+          font-family: "Pretendard GOV", sans-serif !important;
+      }
+    </style>
+  </head>
+  <body style="width: 830px" >
+    <div th:fragment="open_deals">
+      <div class="d-flex flex-column m-1 px-3 py-3 border rounded">
+        <h5 class="fw-bold">제안서 요청</h5>
+        <form action="" method="post">
+          <label for="fdattime" class="form-label">날짜</label>
+          <input type="datetime-local" class="form-control" id="fdattime" name="HOPE_DT">
+          <label for="fcmbRegion" class="form-label mt-3">지역</label>
+          <select class="form-select" id="fcmbRegion" aria-label="fcmbRegion" name="HOPE_REGION">
+            <option selected>지역을 선택해주세요.</option>
+            <option value="대구시_중구">동성로/서문시장/대구역/경북대/엑스코</option>
+            <option value="대구시_동구1">동대구역/신청동/수성못/범어/라이온즈파크/알파시티/시지</option>
+            <option value="대구시_동구2">대구공항/혁신도시/동촌유원지/팔공산/이사아폴리스/군위</option>
+            <option value="대구시_달서구1">서대구역/북부정류장/평리/비산/칠곡지구/동천동/금호지구</option>
+            <option value="대구시_남구">두류/이월드/본리동/죽전동/서부정류장/앞산공원/안지랑/대명동/봉덕동</option>
+            <option value="대구시_달서구2">성서/계명대/상인동/대곡/현풍/테크노폴리스/가창/달성군</option>
+            <option value="경산시">영남대/대구대/갓바위/하양/진량/자인</option>
+          </select>
+          <label for="ftxtPersonCount" class="form-label mt-3">인원</label>
+          <input type="number" class="form-control" id="ftxtPersonCount" name="PEOPLE_COUNT">
+          <label for="ftxtOther" class="form-label mt-3">기타 내용</label>
+          <textarea class="form-control" id="ftxtOther" name="OTHER_CN"></textarea>
+          <button id="btnLogin" type="submit" class="btn btn-primary mx-auto mt-3">
+            요청하기
+          </button>
+        </form>
+      </div>
+    </div>
+    <script src="/static/js/bootstrap.bundle.min.js" ></script>
+    <script src="/static/js/jquery-3.7.1.min.js" ></script>
+  </body>
+</html>

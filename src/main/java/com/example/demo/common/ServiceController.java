@@ -1,52 +1,30 @@
-package com.example.demo;
+package com.example.demo.common;
 
 import com.example.demo.service.ServicePost;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.function.RouterFunction;
-import org.springframework.web.servlet.function.ServerResponse;
+import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.web.servlet.function.RequestPredicates.path;
-import static org.springframework.web.servlet.function.RouterFunctions.route;
-
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages="com.example.demo")
 @RestController
-@EnableWebMvc
-public class BootApplication {
+public class ServiceController {
     @Autowired
     private ServicePost servicePost;
 
-    public static void main(String[] args) {
-        System.out.println("Hello world!");
-        SpringApplication.run(BootApplication.class, args);
-    }
-
     @RequestMapping("/call/")
-    public Map<String, Object> hello(@RequestParam(value = "service") String serviceName, @RequestParam(value = "method") String methodName, @RequestBody(required = false) Map<String,Object> body)  {
+    public Map<String, Object> call(@RequestParam(value = "service") String serviceName, @RequestParam(value = "method") String methodName, @RequestBody(required = false) Map<String,Object> body)  {
         Map<String, Object> result = new HashMap<>();
         Object service = null;
         result.put("status", "ok");
         try {
             try
             {
-                service = BootApplication.class.getDeclaredField("service" + serviceName).get(this);
+                service = ServiceController.class.getDeclaredField("service" + serviceName).get(this);
 
             }
             catch (NoSuchFieldException | IllegalAccessException e) {
@@ -76,11 +54,5 @@ public class BootApplication {
             result.put("err_msg",  "오류가 발생하였습니다..\n" + e.getMessage());
         }
         return result;
-    }
-
-    @Bean
-    RouterFunction<ServerResponse> spaRouter() {
-        ClassPathResource index = new ClassPathResource("static/index.html");
-        return route().resource(path("/"), index).build();
     }
 }
