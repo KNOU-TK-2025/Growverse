@@ -3,6 +3,22 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.customer.dao.DaoCustomerDeal">
+	<select id="Select01" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT a.CUSTOMER_DEAL_ID  AS CUSTOMER_DEAL_ID
+	         , a.STATUS_CD         AS STATUS_CD
+		     , a.CUSTOMER_ID       AS CUSTOMER_ID
+		     , a.BOSS_DEAL_ID      AS BOSS_DEAL_ID
+     		 , a.HOPE_DT           AS HOPE_DT
+     		 , a.HOPE_REGION       AS HOPE_REGION
+     		 , a.PEOPLE_COUNT      AS PEOPLE_COUNT
+     		 , a.OTHEN_CN          AS OTHER_CN
+     		 , ( SELECT COUNT(*)
+     	           FROM TB_BOSS_DEALS b
+     	          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+     		   ) AS BOSS_DEAL_COUNT
+		  FROM TB_CUSTOMER_DEALS a
+		 WHERE a.CUSTOMER_ID = #{CUSTOMER_ID}
+	</select>
 	<insert id="Insert01" parameterType="java.util.Map">
 		INSERT INTO TB_CUSTOMER_DEALS (
 		  STATUS_CD

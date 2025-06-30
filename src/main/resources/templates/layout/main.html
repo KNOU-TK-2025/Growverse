@@ -18,7 +18,7 @@
             <h1 class="text-center" onclick="window.location = '/home';">REVERSE ORDER</h1>
         </div>
         <div class="d-flex flex-row mx-auto">
-            <div id="container" style="width: 830px" th:insert="~{${main_container} :: ${main_container_fragment}}">
+            <div id="container" style="width: 830px" th:insert="~{${screen} :: ${screen_fragment}}">
             </div>
             <div class="d-flex flex-column" id="menu-bar" style="width: 420px">
                 <div class="d-flex flex-column m-1 p-3 pb-2 border rounded">
@@ -46,7 +46,7 @@
                         <span>로그아웃</span>
                     </div>
                 </div>
-                <div th:insert="~{fragments/main_buttons :: ${main_buttons}}">
+                <div th:insert="~{${menu_buttons} :: ${menu_buttons_fragment}}">
                 </div>
                 <div class="d-flex m-1 p-3 border rounded align-items-center justify-content-center" style="height: 400px;">
                     <span>광고</span>

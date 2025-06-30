@@ -21,8 +21,23 @@ public class BossDeal {
         }
     }
 
-    public List<Map<String, Object>> get_available_customer_deal() {
+    public List<Map<String, Object>> get_available_customer_deal(String bossID) {
         this.setup();
-        return daoBossDeal.Select01(new HashMap<>());
+        Map<String, Object> param = new HashMap<>();
+        param.put("BOSS_ID", bossID);
+        return daoBossDeal.Select01(param);
+    }
+
+    public Map<String, Object> get_customer_deal(String bossID, String customerDealID) {
+        this.setup();
+        Map<String, Object> param = new HashMap<>();
+        param.put("BOSS_ID", bossID);
+        param.put("CUSTOMER_DEAL_ID", customerDealID);
+        return daoBossDeal.Select01(param).getFirst();
+    }
+
+    public void put_boss_deal(Map<String, Object> param) {
+        this.setup();
+        daoBossDeal.Insert01(param);
     }
 }

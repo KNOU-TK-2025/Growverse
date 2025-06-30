@@ -16,7 +16,32 @@
 		           FROM TB_BOSS_DEALS b
 		          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
 		       ) AS BOSS_DEAL_COUNT
+			, CASE WHEN EXISTS ( SELECT 1
+			                       FROM TB_BOSS_DEALS b
+			                      WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+		                            AND b.BOSS_ID = #{BOSS_ID}
+			                   )
+		           THEN 'Y'
+		           ELSE 'N'
+		      END AS DEAL_SENT_YN
 		  FROM TB_CUSTOMER_DEALS a
 		 WHERE a.BOSS_DEAL_ID is null
+		<if test="CUSTOMER_DEAL_ID != null">
+		   AND a.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
+		</if>
 	</select>
+	<insert id="Insert01" parameterType="java.util.Map">
+		INSERT INTO TB_BOSS_DEALS (
+		  STATUS_CD
+		, BOSS_ID
+		, ORG_CUSTOMER_DEAL_ID
+		, DEAL_CN
+		)
+		VALUES (
+		  #{STATUS_CD}
+		, #{BOSS_ID}
+		, #{ORG_CUSTOMER_DEAL_ID}
+		, #{DEAL_CN}
+		)
+	</insert>
 </mapper>

@@ -24,28 +24,17 @@ public class CustomerApplication {
     @Autowired
     private CustomerDeal serviceCustomerDeal;
 
-    public String get_button_fragment(HttpSession session) {
-        if ("customer".equals(session.getAttribute("user_mode"))) {
-            return "customer";
-        }
-        else if ("boss".equals(session.getAttribute("user_mode"))) {
-            return "boss";
-        }
-        else {
-            return "default";
-        }
-    }
-
-    @GetMapping("/open_deals")
-    public String open_deals(Model model, HttpSession session) {
-        model.addAttribute("main_buttons", this.get_button_fragment(session));
-        model.addAttribute("main_container", "fragments/open_deals");
-        model.addAttribute("main_container_fragment", "open_deals");
+    @GetMapping("/open_deal")
+    public String open_deal(Model model, HttpSession session) {
+        model.addAttribute("menu_buttons", "fragments/customer/main");
+        model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+        model.addAttribute("screen", "fragments/customer/open_deal");
+        model.addAttribute("screen_fragment", "open_deal");
         return "layout/main";
     }
 
-    @PostMapping(path = "/open_deals", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
-    public @ResponseBody RedirectView post_open_deals(Model model, HttpSession session, @RequestParam Map<String, String > formData) {
+    @PostMapping(path = "/open_deal", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public @ResponseBody RedirectView post_open_deal(Model model, HttpSession session, @RequestParam Map<String, String > formData) {
         Map<String, Object> param = new HashMap<>(formData);
         param.put("STATUS_CD", "01");
         param.put("CUSTOMER_ID", session.getAttribute("user_id"));
@@ -54,9 +43,14 @@ public class CustomerApplication {
     }
 
     public String mypage(Model model, HttpSession session) {
-        model.addAttribute("main_buttons", this.get_button_fragment(session));
-        model.addAttribute("main_container", "fragments/main_container");
-        model.addAttribute("main_container_fragment", "customer_mypage");
+        model.addAttribute("menu_buttons", "fragments/customer/main");
+        model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+        model.addAttribute("screen", "fragments/customer/main");
+        model.addAttribute("screen_fragment", "mypage");
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("CUSTOMER_ID", session.getAttribute("user_id"));
+        model.addAttribute("my_customer_deals", serviceCustomerDeal.get_my_customer_deal(param));
         return "layout/main";
     }
 

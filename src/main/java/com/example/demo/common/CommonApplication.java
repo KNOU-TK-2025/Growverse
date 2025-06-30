@@ -37,29 +37,31 @@ public class CommonApplication {
 
     public String get_button_fragment(HttpSession session) {
         if ("customer".equals(session.getAttribute("user_mode"))) {
-            return "customer";
+            return "fragments/customer/main";
         }
         else if ("boss".equals(session.getAttribute("user_mode"))) {
-            return "boss";
+            return "fragments/boss/main";
         }
         else {
-            return "default";
+            return "fragments/common/guest_main";
         }
     }
 
     @GetMapping("/home")
     public String home(Model model, HttpSession session) {
-        model.addAttribute("main_buttons", this.get_button_fragment(session));
-        model.addAttribute("main_container", "fragments/main_container");
-        model.addAttribute("main_container_fragment", "default");
+        model.addAttribute("menu_buttons", this.get_button_fragment(session));
+        model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+        model.addAttribute("screen", "fragments/common/guest_main");
+        model.addAttribute("screen_fragment", "default");
         return "layout/main";
     }
 
     @GetMapping("/alarm")
     public String alarm(Model model, HttpSession session) {
-        model.addAttribute("main_buttons", this.get_button_fragment(session));
-        model.addAttribute("main_container", "fragments/main_container");
-        model.addAttribute("main_container_fragment", "alarm");
+        model.addAttribute("menu_buttons", this.get_button_fragment(session));
+        model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+        model.addAttribute("screen", "fragments/common/guest_main");
+        model.addAttribute("screen_fragment", "alarm");
         return "layout/main";
     }
 
@@ -72,15 +74,16 @@ public class CommonApplication {
             return bossApplication.mypage(model, session);
         }
         else {
-            model.addAttribute("main_buttons", this.get_button_fragment(session));
-            model.addAttribute("main_container", "fragments/main_container");
-            model.addAttribute("main_container_fragment", "default");
+            model.addAttribute("menu_buttons", this.get_button_fragment(session));
+            model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+            model.addAttribute("screen", "fragments/common/guest_main");
+            model.addAttribute("screen_fragment", "default");
         }
         return "layout/main";
     }
 
     @GetMapping("/login")
-    public String login(Model model, HttpSession session) {
+    public String login(HttpSession session) {
         session.setAttribute("user_id", 1);
         session.setAttribute("user_nm", "관리자");
         session.setAttribute("user_mode", "customer");
@@ -88,11 +91,10 @@ public class CommonApplication {
     }
 
     @GetMapping("/change_user_mode")
-    public RedirectView login(Model model, HttpSession session, @RequestParam(name = "user_mode") String user_mode) {
+    public RedirectView login(HttpSession session, @RequestParam(name = "user_mode") String user_mode) {
         session.setAttribute("user_mode", user_mode);
         return new RedirectView("/home");
     }
-
 
     @Bean
     RouterFunction<ServerResponse> spaRouter() {
