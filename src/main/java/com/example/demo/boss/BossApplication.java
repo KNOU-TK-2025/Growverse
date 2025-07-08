@@ -24,9 +24,9 @@ public class BossApplication {
     public String mypage(Model model, HttpSession session) {
         String bossID = session.getAttribute("user_id").toString();
 
-        model.addAttribute("menu_buttons", "fragments/boss/main");
+        model.addAttribute("menu_buttons", "widgets/boss/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
-        model.addAttribute("screen", "fragments/boss/main");
+        model.addAttribute("screen", "widgets/boss/main");
         model.addAttribute("screen_fragment", "mypage");
 
         model.addAttribute("available_customer_deals", serviceBossDeal.get_available_customer_deal(bossID));
@@ -37,9 +37,9 @@ public class BossApplication {
     public String join_deal(Model model, HttpSession session, @RequestParam(name = "CUSTOMER_DEAL_ID") String customerDealID) {
         String bossID = session.getAttribute("user_id").toString();
 
-        model.addAttribute("menu_buttons", "fragments/boss/main");
+        model.addAttribute("menu_buttons", "widgets/boss/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
-        model.addAttribute("screen", "fragments/boss/join_deal");
+        model.addAttribute("screen", "widgets/boss/join_deal");
         model.addAttribute("screen_fragment", "join_deal");
 
         model.addAttribute("customer_deal", serviceBossDeal.get_customer_deal(bossID, customerDealID));

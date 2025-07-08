@@ -26,9 +26,9 @@ public class CustomerApplication {
 
     @GetMapping("/open_deal")
     public String open_deal(Model model, HttpSession session) {
-        model.addAttribute("menu_buttons", "fragments/customer/main");
+        model.addAttribute("menu_buttons", "widgets/customer/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
-        model.addAttribute("screen", "fragments/customer/open_deal");
+        model.addAttribute("screen", "widgets/customer/open_deal");
         model.addAttribute("screen_fragment", "open_deal");
         return "layout/main";
     }
@@ -43,9 +43,9 @@ public class CustomerApplication {
     }
 
     public String mypage(Model model, HttpSession session) {
-        model.addAttribute("menu_buttons", "fragments/customer/main");
+        model.addAttribute("menu_buttons", "widgets/customer/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
-        model.addAttribute("screen", "fragments/customer/main");
+        model.addAttribute("screen", "widgets/customer/main");
         model.addAttribute("screen_fragment", "mypage");
 
         Map<String, Object> param = new HashMap<>();

@@ -12,21 +12,17 @@ import java.util.Map;
 public class CustomerDeal {
     @Autowired
     private SqlSessionTemplate sqlSession;
-    private DaoCustomerDeal daoCustomerDeal = null;
-
-    public void setup() {
-        if ( this.daoCustomerDeal == null) {
-            this.daoCustomerDeal = sqlSession.getMapper(DaoCustomerDeal.class);
-        }
-    }
 
     public List<Map<String, Object>> get_my_customer_deal(Map<String, Object> param) {
-        this.setup();
+        DaoCustomerDeal daoCustomerDeal = sqlSession.getMapper(DaoCustomerDeal.class);
+        System.out.println("★★★★★★★★★★★★★★★★★★★");
+        System.out.println(daoCustomerDeal);
+        System.out.println("★★★★★★★★★★★★★★★★★★★");
         return daoCustomerDeal.Select01(param);
     }
 
     public void put_customer_deal(Map<String, Object> param) {
-        this.setup();
+        DaoCustomerDeal daoCustomerDeal = sqlSession.getMapper(DaoCustomerDeal.class);
         daoCustomerDeal.Insert01(param);
     }
 }
