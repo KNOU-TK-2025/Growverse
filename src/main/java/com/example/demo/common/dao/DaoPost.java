@@ -1,8 +1,4 @@
-package com.example.demo.dao;
-
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
+package com.example.demo.common.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 

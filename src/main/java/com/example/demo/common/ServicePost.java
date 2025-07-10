@@ -1,6 +1,6 @@
-package com.example.demo.service;
+package com.example.demo.common;
 
-import com.example.demo.dao.DaoPost;
+import com.example.demo.common.dao.DaoPost;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;

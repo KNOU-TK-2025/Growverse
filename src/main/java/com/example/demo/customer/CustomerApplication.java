@@ -1,10 +1,9 @@
 package com.example.demo.customer;
 
-import com.example.demo.common.service.Session;
-import com.example.demo.customer.service.CustomerDeal;
+import com.example.demo.common.DaoService;
+import com.example.demo.customer.dao.DaoCustomerDeal;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +21,7 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 @Controller
 public class CustomerApplication {
     @Autowired
-    private CustomerDeal serviceCustomerDeal;
+    private DaoService daoService;
 
     @GetMapping("/open_deal")
     public String open_deal(Model model, HttpSession session) {
@@ -35,14 +34,19 @@ public class CustomerApplication {
 
     @PostMapping(path = "/open_deal", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public @ResponseBody RedirectView post_open_deal(Model model, HttpSession session, @RequestParam Map<String, String > formData) {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
         Map<String, Object> param = new HashMap<>(formData);
+
         param.put("STATUS_CD", "01");
         param.put("CUSTOMER_ID", session.getAttribute("user_id"));
-        serviceCustomerDeal.put_customer_deal(param);
+        daoCustomerDeal.Insert01(param);
+
         return new RedirectView("/mypage");
     }
 
-    public String mypage(Model model, HttpSession session) {
+    public String mypage(Model model, HttpSession session)  {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+
         model.addAttribute("menu_buttons", "widgets/customer/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
         model.addAttribute("screen", "widgets/customer/main");
@@ -50,7 +54,8 @@ public class CustomerApplication {
 
         Map<String, Object> param = new HashMap<>();
         param.put("CUSTOMER_ID", session.getAttribute("user_id"));
-        model.addAttribute("my_customer_deals", serviceCustomerDeal.get_my_customer_deal(param));
+        model.addAttribute("my_customer_deals", daoCustomerDeal.Select01(param));
+
         return "layout/main";
     }
 

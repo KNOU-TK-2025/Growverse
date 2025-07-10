@@ -1,9 +1,9 @@
 package com.example.demo.boss;
 
-import com.example.demo.boss.service.BossDeal;
+import com.example.demo.boss.dao.DaoBossDeal;
+import com.example.demo.common.DaoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +19,10 @@ import java.util.Map;
 @Controller
 public class BossApplication {
     @Autowired
-    private BossDeal serviceBossDeal;
+    private DaoService daoService;
 
     public String mypage(Model model, HttpSession session) {
+        DaoBossDeal daoBossDeal = daoService.getMapper(DaoBossDeal.class);
         String bossID = session.getAttribute("user_id").toString();
 
         model.addAttribute("menu_buttons", "widgets/boss/main");
@@ -29,30 +30,40 @@ public class BossApplication {
         model.addAttribute("screen", "widgets/boss/main");
         model.addAttribute("screen_fragment", "mypage");
 
-        model.addAttribute("available_customer_deals", serviceBossDeal.get_available_customer_deal(bossID));
+        Map<String, Object> param = new HashMap<>();
+        param.put("BOSS_ID", bossID);
+
+        model.addAttribute("available_customer_deals", daoBossDeal.Select01(param));
         return "layout/main";
     }
 
     @GetMapping("/join_deal")
     public String join_deal(Model model, HttpSession session, @RequestParam(name = "CUSTOMER_DEAL_ID") String customerDealID) {
         String bossID = session.getAttribute("user_id").toString();
+        DaoBossDeal daoBossDeal = daoService.getMapper(DaoBossDeal.class);
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("BOSS_ID", bossID);
+        param.put("CUSTOMER_DEAL_ID", customerDealID);
 
         model.addAttribute("menu_buttons", "widgets/boss/main");
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
         model.addAttribute("screen", "widgets/boss/join_deal");
         model.addAttribute("screen_fragment", "join_deal");
 
-        model.addAttribute("customer_deal", serviceBossDeal.get_customer_deal(bossID, customerDealID));
+        model.addAttribute("customer_deal", daoBossDeal.Select01(param).getFirst());
         return "layout/main";
     }
 
     @PostMapping(path = "/join_deal", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public @ResponseBody RedirectView post_join_deal(Model model, HttpSession session, @RequestParam(name = "CUSTOMER_DEAL_ID") String customerDealID, @RequestParam Map<String, String > formData) {
+        DaoBossDeal daoBossDeal = daoService.getMapper(DaoBossDeal.class);
         Map<String, Object> param = new HashMap<>(formData);
         param.put("STATUS_CD", "01");
         param.put("BOSS_ID", session.getAttribute("user_id"));
         param.put("ORG_CUSTOMER_DEAL_ID", customerDealID);
-        serviceBossDeal.put_boss_deal(param);
+
+        daoBossDeal.Insert01(param);
         return new RedirectView("/mypage");
     }
 }

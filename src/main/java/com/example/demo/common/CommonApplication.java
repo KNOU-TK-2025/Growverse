@@ -1,7 +1,6 @@
 package com.example.demo.common;
 
 import com.example.demo.boss.BossApplication;
-import com.example.demo.common.service.Session;
 import com.example.demo.customer.CustomerApplication;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 import static org.springframework.web.servlet.function.RequestPredicates.path;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
@@ -27,7 +25,7 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 @Controller
 public class CommonApplication {
     @Autowired
-    private Session serviceSession;
+    private DaoService daoService;
 
     @Autowired
     private BossApplication bossApplication;
@@ -39,7 +37,7 @@ public class CommonApplication {
         System.setOut(new PrintStream(System.out, true, "UTF-8"));
         System.setErr(new PrintStream(System.err, true, "UTF-8"));
         System.out.println("😊😊😊😊 [한글 인코딩 테스트.] 😂😂😂😂");
-        System.out.println("😊😊😊😊 [if you can't see text, type chcp 65001 or soemthing.] 😂😂😂😂");
+        System.out.println("😊😊😊😊 [if you can't see text, type chcp 65001 or something.] 😂😂😂😂");
         SpringApplication.run(CommonApplication.class, args);
     }
 
