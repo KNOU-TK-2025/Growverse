@@ -40,7 +40,7 @@ public class CommonApplication {
         System.out.println("😊😊😊😊 [if you can't see text, type chcp 65001 or something.] 😂😂😂😂");
         SpringApplication.run(CommonApplication.class, args);
     }
-
+    //사용자 구분에 따라 다른 위젯을 띄우는 메서드
     public String get_button_fragment(HttpSession session) {
         if ("customer".equals(session.getAttribute("user_mode"))) {
             return "widgets/customer/main";
@@ -52,7 +52,7 @@ public class CommonApplication {
             return "widgets/common/guest_main";
         }
     }
-
+    //home이라는 주소로 들어올 때 타는 메서드
     @GetMapping("/home")
     public String home(Model model, HttpSession session) {
         model.addAttribute("menu_buttons", this.get_button_fragment(session));
