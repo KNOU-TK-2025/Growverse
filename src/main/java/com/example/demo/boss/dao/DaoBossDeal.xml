@@ -11,7 +11,7 @@
 			 , a.HOPE_DT           AS HOPE_DT
 		     , a.HOPE_REGION       AS HOPE_REGION
 		     , a.PEOPLE_COUNT      AS PEOPLE_COUNT
-		     , a.OTHEN_CN          AS OTHER_CN
+		     , a.OTHER_CN          AS OTHER_CN
 		     , ( SELECT COUNT(*)
 		           FROM TB_BOSS_DEALS b
 		          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
@@ -30,6 +30,7 @@
 		   AND a.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
 		</if>
 	</select>
+
 	<insert id="Insert01" parameterType="java.util.Map">
 		INSERT INTO TB_BOSS_DEALS (
 		  STATUS_CD

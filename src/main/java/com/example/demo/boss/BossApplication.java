@@ -37,6 +37,23 @@ public class BossApplication {
         return "layout/main";
     }
 
+
+    @GetMapping("/myplace")
+    public String join_deal(Model model, HttpSession session) {
+        // String bossID = session.getAttribute("user_id").toString();
+        DaoBossDeal daoBossDeal = daoService.getMapper(DaoBossDeal.class);
+
+        // param.put("BOSS_ID", bossID);
+        // param.put("CUSTOMER_DEAL_ID", customerDealID);
+
+        model.addAttribute("menu_buttons", "widgets/boss/main");
+        model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
+        model.addAttribute("screen", "widgets/boss/myplace");
+        model.addAttribute("screen_fragment", "myplace");
+
+        return "layout/main";
+    }
+
     @GetMapping("/join_deal")
     public String join_deal(Model model, HttpSession session, @RequestParam(name = "CUSTOMER_DEAL_ID") String customerDealID) {
         String bossID = session.getAttribute("user_id").toString();

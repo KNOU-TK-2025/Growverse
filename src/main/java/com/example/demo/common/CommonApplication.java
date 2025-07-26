@@ -1,8 +1,10 @@
 package com.example.demo.common;
 
 import com.example.demo.boss.BossApplication;
+import com.example.demo.common.dao.DaoUser;
 import com.example.demo.customer.CustomerApplication;
 import jakarta.servlet.http.HttpSession;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +19,9 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.servlet.function.RequestPredicates.path;
 import static org.springframework.web.servlet.function.RouterFunctions.route;
@@ -32,6 +37,9 @@ public class CommonApplication {
 
     @Autowired
     private CustomerApplication customerApplication;
+
+    @Autowired
+    private SqlSessionTemplate sqlSession;
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         System.setOut(new PrintStream(System.out, true, "UTF-8"));
@@ -52,8 +60,9 @@ public class CommonApplication {
             return "widgets/common/guest_main";
         }
     }
-    //home이라는 주소로 들어올 때 타는 메서드
-    @GetMapping("/home")
+
+    // home이라는 주소로 들어올 때 타는 메서드
+    @GetMapping("/")
     public String home(Model model, HttpSession session) {
         model.addAttribute("menu_buttons", this.get_button_fragment(session));
         model.addAttribute("menu_buttons_fragment", "menu_buttons_main");
@@ -99,12 +108,33 @@ public class CommonApplication {
     @GetMapping("/change_user_mode")
     public RedirectView login(HttpSession session, @RequestParam(name = "user_mode") String user_mode) {
         session.setAttribute("user_mode", user_mode);
-        return new RedirectView("/home");
+        return new RedirectView("/");
     }
 
-    @Bean
-    RouterFunction<ServerResponse> spaRouter() {
-        ClassPathResource index = new ClassPathResource("static/index.html");
-        return route().resource(path("/"), index).build();
+    @GetMapping("/find_id")
+    public String find_id(HttpSession session) {
+        return "layout/find_id";
+    }
+
+    @PostMapping("/find_id")
+    @ResponseBody
+    public Map<String,Object> find_id_post(@RequestBody Map<String,Object> requestData) {
+        DaoUser daoUser = sqlSession.getMapper(DaoUser.class);
+        Map<String,Object> responseData = new HashMap<>();
+
+        List<Map<String, Object>> emails = daoUser.Select01(
+            Map.of("EMAIL", requestData.get("EMAIL").toString())
+        );
+
+        // 조회해서 결과값이 있는 경우, 이메일을 메시지로 출력함.
+        if (!emails.isEmpty())  {
+            System.out.println(emails);
+            responseData.put("msg", "ID[" + emails.getFirst().get("ID").toString() + "]로 가입하셨습니다." );
+        }
+        else { // 조회해서 결과 값이 없으면 오류 호출함.
+            responseData.put("msg", "해당 이메일로 가입된 계정이 없습니다." );
+        }
+
+        return responseData;
     }
 }

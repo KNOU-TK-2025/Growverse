@@ -15,13 +15,13 @@
 <body>
     <div class="d-flex flex-column">
         <div class="d-flex my-3 pt-auto align-items-end justify-content-center" style="height: 140px">
-            <h1 class="text-center" onclick="window.location = '/home';">REVERSE ORDER</h1>
+            <h1 class="text-center" onclick="window.location = '/';">REVERSE ORDER</h1>
         </div>
         <div class="d-flex flex-row mx-auto">
             <div id="container" style="width: 830px" th:insert="~{${screen} :: ${screen_fragment}}">
             </div>
             <div class="d-flex flex-column" id="menu-bar" style="width: 420px">
-                <div class="d-flex flex-column m-1 p-3 pb-2 border rounded">
+                <div class="d-flex flex-column mb-1 mx-1 p-3 pb-2 border rounded">
                     <button id="btnLogin" onclick="window.location = '/login';" type="button" class="btn btn-primary align-self-stretch" style="font-size: 1.4em;" th:if="${session.user_id == null}">
                         로그인
                     </button>

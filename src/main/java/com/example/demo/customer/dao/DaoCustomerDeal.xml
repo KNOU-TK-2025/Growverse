@@ -11,14 +11,21 @@
      		 , a.HOPE_DT           AS HOPE_DT
      		 , a.HOPE_REGION       AS HOPE_REGION
      		 , a.PEOPLE_COUNT      AS PEOPLE_COUNT
-     		 , a.OTHEN_CN          AS OTHER_CN
+     		 , a.OTHER_CN          AS OTHER_CN
      		 , ( SELECT COUNT(*)
      	           FROM TB_BOSS_DEALS b
      	          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
      		   ) AS BOSS_DEAL_COUNT
 		  FROM TB_CUSTOMER_DEALS a
-		 WHERE a.CUSTOMER_ID = #{CUSTOMER_ID}
+		 WHERE 1=1
+		 <if test="CUSTOMER_ID != null">
+		   AND a.CUSTOMER_ID = #{CUSTOMER_ID}
+		 </if>
+		<if test="COURSE_ID != null">
+		   AND a.COURSE_ID   = #{COURSE_ID}
+		</if>
 	</select>
+
 	<insert id="Insert01" parameterType="java.util.Map">
 		INSERT INTO TB_CUSTOMER_DEALS (
 		  STATUS_CD
@@ -26,7 +33,7 @@
 		, HOPE_DT
 		, HOPE_REGION
 		, PEOPLE_COUNT
-		, OTHEN_CN
+		, OTHER_CN
 		)
 		VALUES (
 		  #{STATUS_CD}
@@ -35,6 +42,51 @@
 		, #{HOPE_REGION}
 		, #{PEOPLE_COUNT}
 		, #{OTHER_CN}
+		)
+	</insert>
+
+
+	<select id="SelectPopularCourses" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT a.COURSE_ID
+		, a.COURSE_NAME
+		FROM TB_COURSES a
+		WHERE a.WRITER_ID = #{WRITER_ID}
+		AND a.STATUS_CD = '99' -- 상태코드 : 99-완료(추천)
+	</select>
+
+	<select id="SelectNewCourse" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT a.COURSE_ID
+	         , a.COURSE_NAME
+  		  FROM TB_COURSES a
+         WHERE a.WRITER_ID = #{WRITER_ID}
+		   AND a.STATUS_CD = '01' -- 상태코드 : 01-임시저장
+	</select>
+
+	<insert id="InsertNewCourse" parameterType="java.util.Map">
+		INSERT INTO TB_COURSES
+		(
+			COURSE_NAME
+		  , WRITER_ID
+		  , STATUS_CD
+		)
+		VALUES
+		(
+		    '임시저장된 코스'
+		  , #{WRITER_ID}
+		  , '01' -- 상태코드 : 01-임시저장
+		)
+	</insert>
+
+	<insert id="InsertDealOnNewCourse" parameterType="java.util.Map">
+		INSERT INTO TB_CUSTOMER_DEALS (
+		  STATUS_CD
+		, CUSTOMER_ID
+		, COURSE_ID
+		)
+		VALUES (
+		  '01'
+		, #{CUSTOMER_ID}
+		, #{COURSE_ID}
 		)
 	</insert>
 </mapper>

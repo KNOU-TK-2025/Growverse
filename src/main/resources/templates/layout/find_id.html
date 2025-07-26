@@ -1,1 +1,62 @@
-<!--# TODO: 미구현 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * {
+            font-family: "Pretendard GOV", sans-serif !important;
+        }
+    </style>
+</head>
+<body class="p-3 d-flex flex-column align-items-center">
+    <h1>
+        아이디 찾기
+    </h1>
+    <form onsubmit="return on_form_submitted(event)" method="POST">
+        <input name="EMAIL" type="text" placeholder="이메일을 입력해주세요."/>
+        <button class="btn btn-primary" type="submit">찾기</button>
+    </form>
+    <script>
+function on_form_submitted() {
+event.preventDefault(); // 기본 폼 제출 막기
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    // form 내부 아이템에서 이메일 값을 불러온다.
+    const requestData = {
+      EMAIL: formData.get("EMAIL")
+    };
+
+    // 1. 서버에 find_id로 form 내용을 제출한다. -> http://localhost:8888/find_id
+    fetch("/find_id", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestData) // form의 값을 저장한 json을 제출할 수 있는 형태로 변환한다.
+    })
+    .then(response => {
+      // 2. 서버에서 받아온 결과물을 받아와서 JSON으로 변환한다.
+      if (!response.ok)
+        throw response;
+      return response.json();
+    })
+    .then(responseData => {
+      // 3. json으로 받아온 내용을 팝업으로 띄워준다.
+      alert(responseData.msg);
+    })
+    .catch(error => {
+      // 2~3 실행 중 오류가 발생하면 팝업으로 띄워준다.
+      alert("오류 발생:", error);
+    });
+
+    return false; // form이 실제로 submit되지 않게 막음
+}
+    </script>
+</body>
+</html>
