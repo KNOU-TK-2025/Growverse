@@ -19,56 +19,131 @@
           <div class="d-flex flex-row column-gap-3">
             <!------------------------------------------>
             <div class="d-flex flex-fill flex-column">
+              <div class="d-flex">
+                <span> 내 코스 </span>
+                <button class="btn btn-sm ms-auto" onclick="addCourse(event)">+</button>
+              </div>
+              <div class="d-flex flex-column align-items-stretch row-gap-2">
+                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="my_course: ${my_courses}"
+                     th:attr="COURSE_ID=${my_course['COURSE_ID']},COURSE_NM=${my_course['COURSE_NM']}" onclick="selectCourse(event)">
+                  <span th:text="${my_course['COURSE_NM']}" >코스1</span>
+                  <button class="btn ms-auto py-0 px-0" onclick="renameCourse(event)">工</button>
+                  <button class="btn py-0 pe-2" onclick="removeCourse(event)">×</button>
+                </div>
+              </div>
+              <hr class="mt-2 mb-2"></hr>
               <span class="mb-2">인기 코스</span>
               <div class="d-flex flex-column align-items-stretch row-gap-2">
-                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="popular_course: ${popular_courses}">
-                  <span th:text="${popular_course.COURSE_NAME}" >코스1</span>
-                  <button class="btn ms-auto py-0 px-2">▶</button>
+                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="popular_course: ${popular_courses}"
+                     th:attr="COURSE_ID=${popular_course['COURSE_ID']}" onclick="selectCourse(event)">
+                  <span th:text="${popular_course['COURSE_NM']}" >코스1</span>
+                  <button class="btn ms-auto py-0 px-2" th:if="${editable}">▶</button>
                 </div>
               </div>
             </div>
             <!------------------------------------------>
             <div class="d-flex flex-fill flex-column bg-red">
-              <span class="mb-2">새 코스</span>
+              <span class="mb-2" th:text="${selected_course != null ? ('구성: ' + selected_course['COURSE_NM']) : '코스 구성' }">코스 구성</span>
               <div class="d-flex flex-column align-items-stretch row-gap-2">
-                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="deal_on_new_course: ${deals_on_new_course}">
-                  <span>제안서</span>
-                  <button class="btn ms-auto py-0 px-2">×</button>
+                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" onclick="selectDeal(event)"
+                     th:each="customer_deal: ${customer_deals}" th:attr="COURSE_ID=${selected_course?.['COURSE_ID']},CUSTOMER_DEAL_ID=${customer_deal['CUSTOMER_DEAL_ID']}" >
+                  <span>새 제안서</span>
+                  <button class="btn btn-ms btn-primary ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] == 'Y'}" disabled>매칭중</button>
+                  <button class="btn btn-ms btn-success ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['BOSS_DEAL_ID'] == null}">매칭하기</button>
+                  <button class="btn btn-ms btn-secondary ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['BOSS_DEAL_ID'] != null}" disabled>매칭됨</button>
+                  <button class="btn btn-ms btn-danger ms-1 py-0 px-2" onclick="removeDeal(event)" >×</button>
                 </div>
-                <button class="btn border py-0 align-self-stretch text-center" onclick="addDeal()">
+                <button class="btn border py-0 align-self-stretch text-center" th:attr="COURSE_ID=${selected_course?.['COURSE_ID']}" onclick="addDeal(event)" >
                   +
                 </button>
               </div>
             </div>
             <!------------------------------------------>
-            <div class="flex-fill">
-              <span class="mb-2 ">세부내용</span>
+            <div class="d-flex flex-fill flex-column">
+              <span class="mb-2 ">상세내용</span>
+              <label>희망일자</label>
+              <input type="text"/>
+              <label>예상인원</label>
+              <input type="number"/>
+              <label>기타내용</label>
+              <textarea></textarea>
+              <hr>
+              <label>매칭하기 </label>
+              <input type="radio"/>
+              <label>매장지정 </label>
+              <input type="radio"/>
+              <label>매장정보</label>
+              <input type="text"/>
+              <label>희망지역</label>
+              <input type="text"/>
             </div>
             <!------------------------------------------>
           </div>
       </div>
       <script>
-        function selectDeal() {
+        function addCourse(e) {
+          e.stopPropagation();
+          $post('/api/add_course',
+            null,
+            function () {
+              refresh();
+            }
+          );
         }
-        function addDeal() {
-          $.ajax({
-            type: 'POST',
-            url: '/open_deal/add_deal',
-            data: JSON.stringify({}),
-            success: function (data) {
-                if (data.status != 'ok') {
-                    alert("오류가 발생하였습니다.\n" + data.msg);
-                    throw data.msg;
-                }
-                window.location = window.location;
-            },
-            contentType: 'application/json',
-            dataType: 'json'
-          });
+
+        function selectCourse(e) {
+          e.stopPropagation();
+          window.location = '/open_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID');
         }
-        function updateDeal() {
+
+        function removeCourse(e) {
+          e.stopPropagation();
+          $post('/api/remove_course?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID'),
+            null,
+            function () {
+              refresh();
+            }
+          );
         }
-        function removeDeal() {
+
+        function renameCourse(e) {
+          e.stopPropagation();
+          var new_course_nm = prompt('새 코스명을 입력해주세요', e.target.parentElement.getAttribute('COURSE_NM'));
+          if (new_course_nm === null) {
+            return;
+          }
+
+          $post('/api/rename_course?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID'),
+            { COURSE_NM: new_course_nm },
+            function () {
+              refresh();
+            }
+          );
+        }
+
+        function addDeal(e) {
+          e.stopPropagation();
+          $post('/api/add_customer_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID'),
+            null,
+            function () {
+              refresh();
+            }
+          );
+        }
+        function selectDeal(e) {
+          e.stopPropagation();
+          window.location = '/open_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID')
+                                                    + '&CUSTOMER_DEAL_ID=' + e.target.getAttribute('CUSTOMER_DEAL_ID');
+        }
+        function removeDeal(e) {
+          e.stopPropagation();
+          $post('/api/remove_customer_deal?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID')
+                                       + '&CUSTOMER_DEAL_ID=' + e.target.parentElement.getAttribute('CUSTOMER_DEAL_ID'),
+            null,
+            function () {
+              refresh();
+            }
+          );
         }
 
       </script>

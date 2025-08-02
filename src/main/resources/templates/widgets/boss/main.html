@@ -34,20 +34,20 @@
         <span class="fw-bold">제안서 쓰기</span>
         <div class="d-flex flex-column mt-2 align-items-stretch">
           <div class="d-flex flex-row align-items-center border px-3 py-2 mt-2" th:each="customer_deal: ${available_customer_deals}">
-            <span th:text="${customer_deal.HOPE_REGION}">동성로 부근</span>
+            <span th:text="${customer_deal['HOPE_REGION']}">동성로 부근</span>
             <span class="mx-2">|</span>
-            <span th:text="${customer_deal.HOPE_DT}">8월 21일 14:30</span>
+            <span th:text="${customer_deal['HOPE_DT']}">8월 21일 14:30</span>
             <span class="mx-2">|</span>
-            <span th:text="'인원 ' + ${customer_deal.PEOPLE_COUNT}+ '명'">인원 41명</span>
+            <span th:text="'인원 ' + ${customer_deal['PEOPLE_COUNT']}+ '명'">인원 41명</span>
             <span class="mx-2">|</span>
-            <span th:text="${customer_deal.BOSS_DEAL_COUNT}+ '건 제안됨'">2건 제안됨</span>
+            <span th:text="${customer_deal['BOSS_DEAL_COUNT']}+ '건 제안됨'">2건 제안됨</span>
             <span class="mx-2">|</span>
             <button type="button" class="btn btn-primary py-0 px-2" onclick="window.location = '/join_deal?CUSTOMER_DEAL_ID='+this.getAttribute('customer_deal_id');"
-                    th:attr="customer_deal_id=${customer_deal.CUSTOMER_DEAL_ID}" th:if="${customer_deal.DEAL_SENT_YN} == 'N'">
+                    th:attr="customer_deal_id=${customer_deal['CUSTOMER_DEAL_ID']}" th:if="${customer_deal['DEAL_SENT_YN']} == 'N'">
               제안하기
             </button>
             <button type="button" class="btn danger py-0 px-2" disabled onclick="window.location = '/exit_deal?CUSTOMER_DEAL_ID='+this.getAttribute('customer_deal_id');"
-                     th:attr="customer_deal_id=${customer_deal.CUSTOMER_DEAL_ID}"  th:if="${customer_deal.DEAL_SENT_YN} == 'Y'">
+                     th:attr="customer_deal_id=${customer_deal['CUSTOMER_DEAL_ID']}"  th:if="${customer_deal['DEAL_SENT_YN']} == 'Y'">
               취소
             </button>
           </div>

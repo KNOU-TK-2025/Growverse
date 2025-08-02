@@ -3,90 +3,76 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.customer.dao.DaoCustomerDeal">
-	<select id="Select01" resultType="java.util.Map" parameterType="java.util.Map">
-		SELECT a.CUSTOMER_DEAL_ID  AS CUSTOMER_DEAL_ID
-	         , a.STATUS_CD         AS STATUS_CD
-		     , a.CUSTOMER_ID       AS CUSTOMER_ID
-		     , a.BOSS_DEAL_ID      AS BOSS_DEAL_ID
-     		 , a.HOPE_DT           AS HOPE_DT
-     		 , a.HOPE_REGION       AS HOPE_REGION
-     		 , a.PEOPLE_COUNT      AS PEOPLE_COUNT
-     		 , a.OTHER_CN          AS OTHER_CN
-     		 , ( SELECT COUNT(*)
-     	           FROM TB_BOSS_DEALS b
-     	          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
-     		   ) AS BOSS_DEAL_COUNT
-		  FROM TB_CUSTOMER_DEALS a
+	<select id="SelectCustomerDeals" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT b.CUSTOMER_DEAL_ID
+		     , b.OPEN_YN
+		  FROM TB_COURSES a
+		     , TB_CUSTOMER_DEALS b
 		 WHERE 1=1
+		   AND b.COURSE_ID = a.COURSE_ID
 		 <if test="CUSTOMER_ID != null">
-		   AND a.CUSTOMER_ID = #{CUSTOMER_ID}
+		   AND a.WRITER_ID = #{CUSTOMER_ID}
 		 </if>
 		<if test="COURSE_ID != null">
-		   AND a.COURSE_ID   = #{COURSE_ID}
+			AND a.COURSE_ID   = #{COURSE_ID}
+		</if>
+		<if test="CUSTOMER_DEAL_ID != null">
+			AND b.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
 		</if>
 	</select>
 
-	<insert id="Insert01" parameterType="java.util.Map">
+	<insert id="InsertCustomerDeal" parameterType="java.util.Map">
 		INSERT INTO TB_CUSTOMER_DEALS (
-		  STATUS_CD
-		, CUSTOMER_ID
-		, HOPE_DT
-		, HOPE_REGION
-		, PEOPLE_COUNT
-		, OTHER_CN
+		COURSE_ID
 		)
 		VALUES (
-		  #{STATUS_CD}
-		, #{CUSTOMER_ID}
-		, #{HOPE_DT}
-		, #{HOPE_REGION}
-		, #{PEOPLE_COUNT}
-		, #{OTHER_CN}
+		#{COURSE_ID}
 		)
 	</insert>
 
+	<delete id="DeleteCustomerDeal" parameterType="java.util.Map">
+		DELETE FROM TB_CUSTOMER_DEALS
+		WHERE COURSE_ID        = #{COURSE_ID}
+		AND   CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
+	</delete>
 
-	<select id="SelectPopularCourses" resultType="java.util.Map" parameterType="java.util.Map">
+
+	<select id="SelectCourses" resultType="java.util.Map" parameterType="java.util.Map">
 		SELECT a.COURSE_ID
-		, a.COURSE_NAME
-		FROM TB_COURSES a
-		WHERE a.WRITER_ID = #{WRITER_ID}
-		AND a.STATUS_CD = '99' -- 상태코드 : 99-완료(추천)
+		,      IFNULL(a.COURSE_NM, '새 코스') AS COURSE_NM
+		,      a.WRITER_ID
+		FROM   TB_COURSES a
+		WHERE  1=1
+		<if test="WRITER_ID != null">
+			AND   a.WRITER_ID = #{WRITER_ID}
+		</if>
+		<if test="COURSE_ID != null">
+			AND   a.COURSE_ID = #{COURSE_ID}
+		</if>
+		<if test="POPULAR_YN != null">
+			AND   a.POPULAR_YN = #{POPULAR_YN}
+		</if>
 	</select>
 
-	<select id="SelectNewCourse" resultType="java.util.Map" parameterType="java.util.Map">
-		SELECT a.COURSE_ID
-	         , a.COURSE_NAME
-  		  FROM TB_COURSES a
-         WHERE a.WRITER_ID = #{WRITER_ID}
-		   AND a.STATUS_CD = '01' -- 상태코드 : 01-임시저장
-	</select>
-
-	<insert id="InsertNewCourse" parameterType="java.util.Map">
+	<insert id="InsertCourse" parameterType="java.util.Map">
 		INSERT INTO TB_COURSES
 		(
-			COURSE_NAME
-		  , WRITER_ID
-		  , STATUS_CD
+			WRITER_ID
 		)
 		VALUES
 		(
-		    '임시저장된 코스'
-		  , #{WRITER_ID}
-		  , '01' -- 상태코드 : 01-임시저장
+		    #{WRITER_ID}
 		)
 	</insert>
 
-	<insert id="InsertDealOnNewCourse" parameterType="java.util.Map">
-		INSERT INTO TB_CUSTOMER_DEALS (
-		  STATUS_CD
-		, CUSTOMER_ID
-		, COURSE_ID
-		)
-		VALUES (
-		  '01'
-		, #{CUSTOMER_ID}
-		, #{COURSE_ID}
-		)
-	</insert>
+	<update id="UpdateCourse" parameterType="java.util.Map">
+		UPDATE TB_COURSES
+		   SET COURSE_NM = #{COURSE_NM}
+		 WHERE COURSE_ID = #{COURSE_ID}
+	</update>
+
+	<delete id="DeleteCourse" parameterType="java.util.Map">
+		DELETE FROM TB_COURSES
+		WHERE COURSE_ID = #{COURSE_ID}
+	</delete>
 </mapper>

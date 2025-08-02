@@ -20,19 +20,19 @@
         <div class="d-flex flex-row mx-auto">
             <div id="container" style="width: 830px" th:insert="~{${screen} :: ${screen_fragment}}">
             </div>
-            <div class="d-flex flex-column" id="menu-bar" style="width: 420px">
+            <div class="d-flex flex-column" id="menu-bar" style="width: 250px">
                 <div class="d-flex flex-column mb-1 mx-1 p-3 pb-2 border rounded">
                     <button id="btnLogin" onclick="window.location = '/login';" type="button" class="btn btn-primary align-self-stretch" style="font-size: 1.4em;" th:if="${session.user_id == null}">
                         로그인
                     </button>
-                    <div class="d-flex flex-row align-self-stretch align-items-center" style="font-size: 1.4em;" th:if="${session.user_id != null}">
+                    <div class="d-flex flex-row align-self-stretch align-items-center" th:if="${session.user_id != null}">
                         <div class="flex-grow-1" th:text="${session.user_nm}">
                             관리자님
                         </div>
                         <div class="btn-group" role="group">
-                            <button id="btnUserModeCustomer" onclick="window.location.href = '/change_user_mode?user_mode=customer';" th:classappend="${session.user_mode} == 'customer' ? ' active' : ''" type="button" class="btn btn-secondary">손님</button>
-                            <button id="btnUserModeBoss" onclick="window.location.href = '/change_user_mode?user_mode=boss';" th:classappend="${session.user_mode} == 'boss' ? ' active' : ''"  type="button" class="btn btn-secondary">사장님</button>
-                            <button id="btnUserModeAdmin" onclick="window.location.href = '/change_user_mode?user_mode=admin';" th:classappend="${session.user_mode} == 'admin' ? ' active' : ''"  type="button" class="btn btn-secondary">관리자</button>
+                            <button id="btnUserModeCustomer" onclick="window.location.href = '/change_user_mode?user_mode=customer';" th:classappend="${session.user_mode} == 'customer' ? ' active' : ''" type="button" class="btn btn-sm btn-secondary px-1">손님</button>
+                            <button id="btnUserModeBoss" onclick="window.location.href = '/change_user_mode?user_mode=boss';" th:classappend="${session.user_mode} == 'boss' ? ' active' : ''"  type="button"            class="btn btn-sm btn-secondary px-1">사장님</button>
+                            <button id="btnUserModeAdmin" onclick="window.location.href = '/change_user_mode?user_mode=admin';" th:classappend="${session.user_mode} == 'admin' ? ' active' : ''"  type="button"         class="btn btn-sm btn-secondary px-1">관리자</button>
                         </div>
                     </div>
                     <div class="d-flex flex-row mt-2 mx-auto" th:if="${session.user_id == null}">
@@ -56,5 +56,6 @@
     </div>
     <script src="/static/js/bootstrap.bundle.min.js" ></script>
     <script src="/static/js/jquery-3.7.1.min.js" ></script>
+    <script src="/static/js/common_functions.js" ></script>
 </body>
 </html>

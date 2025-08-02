@@ -7,12 +7,13 @@ import java.util.Map;
 
 @Mapper
 public interface DaoCustomerDeal {
-	List<Map<String,Object>> Select01(Map<String, Object> param);
-	void Insert01(Map<String, Object> param);
+	List<Map<String,Object>> SelectCustomerDeals(Map<String, Object> param);
+	void InsertCustomerDeal(Map<String, Object> param);
+	void DeleteCustomerDeal(Map<String, Object> param);
 
-	List<Map<String,Object>> SelectPopularCourses(Map<String, Object> param);
-	List<Map<String,Object>> SelectNewCourse(Map<String, Object> param);
-	void InsertNewCourse(Map<String, Object> param);
-	void InsertDealOnNewCourse(Map<String, Object> param);
+	List<Map<String,Object>> SelectCourses(Map<String, Object> param);
+	void InsertCourse(Map<String, Object> param);
+	void UpdateCourse(Map<String, Object> param);
+	void DeleteCourse(Map<String, Object> param);
 }
  
