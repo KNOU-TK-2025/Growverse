@@ -22,7 +22,7 @@
                 <div  th:each="boss_image: ${boss_image_list}" th:IMAGE_FILE_NAME="${boss_image}">
                     <img style="width: 200px;" th:src="${'/static/upload/' + boss_image}"/>
                 </div>
-                <form class="mt-2 input-group" method="post" action="/api/upload_file" enctype="multipart/form-data" id="form_upload">
+                <form class="mt-2 input-group" method="post" action="/api/boss/upload_file" enctype="multipart/form-data" id="form_upload">
                     <input class="form-control" type="file" name="imageFile" accept="image/*" required>
                     <button class="btn btn-primary input-group-text" onclick="$('#onclick').submit()">업로드</button>
                 </form>

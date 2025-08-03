@@ -3,8 +3,9 @@
 		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.boss.dao.DaoBossDeal">
-	<select id="SelectDeals" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
+	<select id="SelectBossDeals" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
 		SELECT a.CUSTOMER_DEAL_ID
+		,      a.OPEN_YN
 		,      a.BOSS_DEAL_ID
 		,      b.BOSS_DEAL_ID  AS MY_BOSS_DEAL_ID
 		,      a.HOPE_DT
@@ -38,6 +39,7 @@
 		           FROM TB_BOSS_DEALS t
 		          WHERE t.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
 		       ) AS BOSS_DEAL_COUNT
+		<if test="BOSS_ID != null">
 		,      CASE WHEN EXISTS ( SELECT 1
 		                          FROM   TB_BOSS_DEALS b
 		                          WHERE  b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
@@ -46,14 +48,29 @@
 		            THEN 'Y'
 		            ELSE 'N'
 		       END AS DEAL_SENT_YN
+		</if>
 		,      b.DEAL_CN AS BOSS_DEAL_CN
 		FROM   TB_CUSTOMER_DEALS a
 		LEFT   OUTER JOIN
 		       TB_BOSS_DEALS b
 		ON     b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
 		AND    b.BOSS_ID              = #{BOSS_ID}
-		WHERE  a.BOSS_DEAL_ID is null
-		AND    a.OPEN_YN = 'Y'
+		WHERE  1=1
+		<if test='DEAL_SENT_YN == "Y"'>
+			AND    EXISTS ( SELECT 1
+			                  FROM TB_BOSS_DEALS b2
+		                     WHERE b2.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+			                   AND b2.BOSS_ID = #{BOSS_ID}
+			              )
+		</if>
+		<if test='DEAL_SENT_YN == "N"'>
+			AND    a.OPEN_YN = 'Y'
+			AND NOT EXISTS ( SELECT 1
+			                   FROM TB_BOSS_DEALS b2
+		                      WHERE b2.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+			                    AND b2.BOSS_ID = #{BOSS_ID}
+			               )
+		</if>
 		<if test="CUSTOMER_DEAL_ID != null">
 			AND a.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
 		</if>

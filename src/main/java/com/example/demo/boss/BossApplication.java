@@ -39,13 +39,15 @@ public class BossApplication {
         model.addAttribute("screen", "widgets/boss/main");
         model.addAttribute("screen_fragment", "mypage");
 
-        model.addAttribute("available_customer_deals", daoBossDeal.SelectDeals(Map.of("BOSS_ID", bossID)));
+        model.addAttribute("boss_deals", daoBossDeal.SelectBossDeals(Map.of("BOSS_ID", bossID, "DEAL_SENT_YN", "Y")));
+        model.addAttribute("available_customer_deals", daoBossDeal.SelectBossDeals(Map.of("BOSS_ID", bossID, "DEAL_SENT_YN", "N")));
         return "layout/main";
     }
 
     @GetMapping("/join_deal")
     public String join_deal(Model model, HttpSession session, @RequestParam(name = "CUSTOMER_DEAL_ID") String customerDealID) {
         String bossID = session.getAttribute("user_id").toString();
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
         DaoBoss daoBoss = daoService.getMapper(DaoBoss.class);
         DaoBossDeal daoBossDeal = daoService.getMapper(DaoBossDeal.class);
         DaoCode daoCode = daoService.getMapper(DaoCode.class);
@@ -60,7 +62,7 @@ public class BossApplication {
         model.addAttribute("region_codes", daoCode.SelectCodes(Map.of("CD_KNM", "지역구분코드")));
 
 
-        Map<String, Object> deal = daoBossDeal.SelectDeals(Map.of("BOSS_ID", bossID,"CUSTOMER_DEAL_ID", customerDealID)).getFirst();
+        Map<String, Object> deal = daoBossDeal.SelectBossDeals(Map.of("BOSS_ID", bossID,"CUSTOMER_DEAL_ID", customerDealID)).getFirst();
         String theme_name_list = "";
         if (deal.containsKey("HOPE_THEME_NM1")) {
             theme_name_list = deal.get("HOPE_THEME_NM1").toString();
@@ -187,7 +189,7 @@ public class BossApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/upload_file", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/api/boss/upload_file", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public @ResponseBody RedirectView api_upload_file(HttpSession session, @RequestParam("imageFile") MultipartFile file) {
         DaoBoss daoBoss = daoService.getMapper(DaoBoss.class);
         String bossID = session.getAttribute("user_id").toString();

@@ -12,6 +12,8 @@ public interface DaoCustomerDeal {
 	void UpdateCustomerDeal(Map<String, Object> param);
 	void DeleteCustomerDeal(Map<String, Object> param);
 
+	List<Map<String,Object>> SelectBossDeals(Map<String, Object> param);
+
 	List<Map<String,Object>> SelectCourses(Map<String, Object> param);
 	void InsertCourse(Map<String, Object> param);
 	void UpdateCourse(Map<String, Object> param);

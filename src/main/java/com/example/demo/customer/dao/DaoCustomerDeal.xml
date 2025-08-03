@@ -65,6 +65,24 @@
 		</if>
 	</select>
 
+	<select id="SelectBossDeals" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
+		SELECT a.BOSS_ID
+		,      a.BOSS_DEAL_ID
+		,      a.DEAL_CN
+		,      b.BOSS_NM
+		,      b.INFO
+		  FROM TB_BOSS_DEALS a
+		,      TB_BOSS       b
+		WHERE 1=1
+		<if test="ORG_CUSTOMER_DEAL_ID != null">
+		AND    a.ORG_CUSTOMER_DEAL_ID = #{ORG_CUSTOMER_DEAL_ID}
+		</if>
+		AND    b.BOSS_ID              = a.BOSS_ID
+		<if test="BOSS_DEAL_ID != null">
+			AND a.BOSS_DEAL_ID = #{BOSS_DEAL_ID}
+		</if>
+	</select>
+
 	<insert id="InsertCustomerDeal" parameterType="java.util.Map">
 		INSERT INTO TB_CUSTOMER_DEALS (
 		COURSE_ID

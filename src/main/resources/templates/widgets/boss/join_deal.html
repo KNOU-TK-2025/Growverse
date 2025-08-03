@@ -33,11 +33,11 @@
             <h7 class="fw-bold mb-2">제안서 내용</h7>
             <label>제안내용</label>
             <textarea class="form-control flex-grow-1" style="height: 200px;" placeholder="[선택] 세부적으로 제안할 내용을 입력해주세요."
-                      th:text="${selected_customer_deal['BOSS_DEAL_CN']}"></textarea>
+                      id="FORM_DEAL_CN" th:text="${selected_customer_deal['BOSS_DEAL_CN']}"></textarea>
             <button type="submit" class="btn btn-sm btn-primary mt-2 ms-auto align-self-end" onclick="addBossDeal(this, event)" th:if="${selected_customer_deal['DEAL_SENT_YN'] == 'N'}">
               제안하기
             </button>
-            <button type="submit" class="btn btn-sm btn-danger mt-2 ms-auto align-self-end" onclick="removeBossDeal(this, event)" th:if="${selected_customer_deal['DEAL_SENT_YN'] == 'Y'}">
+            <button type="submit" class="btn btn-sm btn-danger mt-2 ms-auto align-self-end" onclick="removeBossDeal(this, event)" th:if="${selected_customer_deal['DEAL_SENT_YN'] == 'Y' && selected_customer_deal['OPEN_YN'] == 'Y'}">
               취소하기
             </button>
             <h7 class="fw-bold mb-2">매장사진/소개</h7>

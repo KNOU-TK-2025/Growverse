@@ -27,13 +27,31 @@
     </div>
   </div>
     <div th:fragment="mypage">
-      <div class="d-flex m-1 px-3 py-3 border rounded">
+      <div class="d-flex flex-column m-1 px-3 py-3 border rounded">
         <span class="fw-bold">보낸 제안서 현황</span>
+        <div class="d-flex flex-column mt-1">
+          <div class="d-flex flex-row border px-3 py-1 mt-2" th:each="boss_deal: ${boss_deals}"
+               th:CUSTOMER_DEAL_ID="${boss_deal['CUSTOMER_DEAL_ID']}" th:MY_BOSS_DEAL_ID="${boss_deal['MY_BOSS_DEAL_ID']}"
+               onclick="selectBossDeal(this, event)">
+            <span th:text="${'지역 '+boss_deal['HOPE_REGION_NM']}">동성로 부근</span>
+            <span class="mx-2">|</span>
+            <span th:text="${'일자 '+ boss_deal['HOPE_DT']}">8월 21일 14:30</span>
+            <span class="mx-2">|</span>
+            <span th:text="'인원 ' + ${boss_deal['HOPE_PEOPLE_CNT']}+ '명'">인원 41명</span>
+            <span class="mx-2"></span>
+            <button type="button" class="btn btn-primary py-0 px-2" th:if="${boss_deal['OPEN_YN'] == 'Y'}">
+              미확정
+            </button>
+            <button type="button" class="btn btn-secondary py-0 px-2" th:if="${boss_deal['OPEN_YN'] == 'N'}" disabled>
+              확정됨
+            </button>
+          </div>
+        </div>
       </div>
       <div class="d-flex flex-column m-1 px-3 py-3 border rounded">
         <span class="fw-bold">제안서 쓰기</span>
-        <div class="d-flex flex-column mt-2 align-items-stretch">
-          <div class="d-flex flex-row align-items-center border px-3 py-2 mt-2" th:each="customer_deal: ${available_customer_deals}"
+        <div class="d-flex flex-column mt-1 align-items-stretch">
+          <div class="d-flex flex-row align-items-center border px-3 py-1 mt-2" th:each="customer_deal: ${available_customer_deals}"
                th:CUSTOMER_DEAL_ID="${customer_deal['CUSTOMER_DEAL_ID']}" th:MY_BOSS_DEAL_ID="${customer_deal['MY_BOSS_DEAL_ID']}"
                onclick="selectBossDeal(this, event)">
             <span th:text="${'지역 '+customer_deal['HOPE_REGION_NM']}">동성로 부근</span>

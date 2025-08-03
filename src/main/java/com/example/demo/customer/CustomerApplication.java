@@ -4,6 +4,8 @@ import com.example.demo.boss.dao.DaoBossDeal;
 import com.example.demo.common.DaoService;
 import com.example.demo.common.dao.DaoCode;
 import com.example.demo.customer.dao.DaoCustomerDeal;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -12,9 +14,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import static org.springframework.web.servlet.function.RouterFunctions.route;
 
@@ -24,7 +25,8 @@ public class CustomerApplication {
     private DaoService daoService;
 
     @GetMapping("/open_deal")
-    public String open_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID", required = false) String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID", required = false) String customer_deal_id) {
+    public String open_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID", required = false) String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID", required = false) String customer_deal_id,
+                              @RequestParam(name = "BOSS_DEAL_ID", required = false) String boss_deal_id, @RequestParam(name = "SHOW_BOSS_DEALS", defaultValue = "N") String show_boss_deals) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
         DaoCode daoCode = daoService.getMapper(DaoCode.class);
         boolean editable = false;
@@ -93,16 +95,48 @@ public class CustomerApplication {
             model.addAttribute("selected_customer_deal", selectedCustomerDeal);
             model.addAttribute("theme_codes", daoCode.SelectCodes(Map.of("CD_KNM", "테마구분코드")));
             model.addAttribute("region_codes", daoCode.SelectCodes(Map.of("CD_KNM", "지역구분코드")));
+
+            if (show_boss_deals.equals("Y")) {
+                model.addAttribute("boss_deals", daoCustomerDeal.SelectBossDeals(Map.of("ORG_CUSTOMER_DEAL_ID", customer_deal_id)));
+            }
         } else {
             model.addAttribute("selected_customer_deal", null);
         }
 
+        if (boss_deal_id != null) {
+            Map<String,Object> bossDeal = daoCustomerDeal.SelectBossDeals(Map.of("BOSS_DEAL_ID", boss_deal_id)).getFirst();
+            ObjectMapper mapper = new ObjectMapper();
+
+            try {
+                String desc = "";
+                List<String> image_list = new ArrayList<>();
+
+                if (bossDeal.containsKey("INFO")) {
+                    Map info = mapper.readValue(bossDeal.get("INFO").toString(), Map.class);
+                    if (info.containsKey("IMAGE_LIST")) {
+                        image_list = (List<String>) info.get("IMAGE_LIST");
+                    }
+                    if (info.containsKey("DESC")) {
+                        desc = info.get("DESC").toString();
+                    }
+                }
+                bossDeal.put("DESC", desc);
+                bossDeal.put("IMAGE_LIST", image_list);
+            }
+            catch (NoSuchElementException | JsonProcessingException _) {}
+
+            model.addAttribute("selected_boss_deal", bossDeal);
+        } else {
+            model.addAttribute("selected_boss_deal", null);
+        }
+
         model.addAttribute("editable", editable);
+        model.addAttribute("SHOW_BOSS_DEALS", show_boss_deals.equals("Y"));
         return "layout/main";
     }
 
 
-    @PostMapping(path = "/api/add_course")
+    @PostMapping(path = "/api/customer/add_course")
     public @ResponseBody Map<String, Object> api_add_course(Model model, HttpSession session) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -111,7 +145,7 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/remove_course")
+    @PostMapping(path = "/api/customer/remove_course")
     public @ResponseBody Map<String, Object> api_remove_course(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -120,7 +154,7 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/rename_course")
+    @PostMapping(path = "/api/customer/rename_course")
     public @ResponseBody Map<String, Object> api_remove_course(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestBody Map<String, String > payload) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -129,7 +163,7 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/add_customer_deal")
+    @PostMapping(path = "/api/customer/add_customer_deal")
     public @ResponseBody Map<String, Object> api_add_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -139,7 +173,7 @@ public class CustomerApplication {
     }
 
 
-    @PostMapping(path = "/api/remove_customer_deal")
+    @PostMapping(path = "/api/customer/remove_customer_deal")
     public @ResponseBody Map<String, Object> api_add_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -148,7 +182,7 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/save_customer_deal")
+    @PostMapping(path = "/api/customer/save_customer_deal")
     public @ResponseBody Map<String, Object> api_save_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id, @RequestBody Map<String, String > payload) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
         Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id));
@@ -170,11 +204,31 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
-    @PostMapping(path = "/api/open_customer_deal")
+    @PostMapping(path = "/api/customer/open_customer_deal")
     public @ResponseBody Map<String, Object> api_open_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
         Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id));
         param.put("OPEN_YN", "Y");
+        daoCustomerDeal.UpdateCustomerDeal(param);
+
+        return Map.of("status", "ok");
+    }
+
+    @PostMapping(path = "/api/customer/cancel_customer_deal")
+    public @ResponseBody Map<String, Object> api_cancel_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id) {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+        Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id));
+        param.put("OPEN_YN", "N");
+        daoCustomerDeal.UpdateCustomerDeal(param);
+
+        return Map.of("status", "ok");
+    }
+
+    @PostMapping(path = "/api/customer/done_customer_deal")
+    public @ResponseBody Map<String, Object> api_done_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id, @RequestBody Map<String, String > payload) {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+        Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id, "OPEN_YN", "N"));
+        param.put("BOSS_DEAL_ID", payload.get("BOSS_DEAL_ID"));
         daoCustomerDeal.UpdateCustomerDeal(param);
 
         return Map.of("status", "ok");
