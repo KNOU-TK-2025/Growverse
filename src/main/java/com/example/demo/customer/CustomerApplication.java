@@ -2,6 +2,7 @@ package com.example.demo.customer;
 
 import com.example.demo.boss.dao.DaoBossDeal;
 import com.example.demo.common.DaoService;
+import com.example.demo.common.dao.DaoCode;
 import com.example.demo.customer.dao.DaoCustomerDeal;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ public class CustomerApplication {
     @GetMapping("/open_deal")
     public String open_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID", required = false) String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID", required = false) String customer_deal_id) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+        DaoCode daoCode = daoService.getMapper(DaoCode.class);
         boolean editable = false;
 
         model.addAttribute("menu_buttons", "widgets/customer/main");
@@ -36,9 +38,49 @@ public class CustomerApplication {
         model.addAttribute("popular_courses", daoCustomerDeal.SelectCourses(Map.of("POPULAR_YN", "Y")));
         if (course_id != null) {
             Map<String, Object> selectedCourse = daoCustomerDeal.SelectCourses(Map.of("COURSE_ID", course_id)).getFirst();
+            List<Map<String, Object>> customerDeals = daoCustomerDeal.SelectCustomerDeals(Map.of("COURSE_ID", course_id));
 
+            // 제목 조립
+            for (int i = 0; i < customerDeals.size(); i++) {
+                Map<String, Object> customerDeal = customerDeals.get(i);
+                String themes = "";
+
+                if (customerDeal.get("HOPE_THEME_NM1") != null) {
+                    themes += customerDeal.get("HOPE_THEME_NM1");
+                }
+                if (customerDeal.get("HOPE_THEME_NM2") != null) {
+                    if (!themes.isEmpty()) {
+                        themes += ", ";
+                    }
+                    themes += customerDeal.get("HOPE_THEME_NM2");
+                }
+                if (customerDeal.get("HOPE_THEME_NM3") != null) {
+                    if (!themes.isEmpty()) {
+                        themes += ", ";
+                    }
+                    themes += customerDeal.get("HOPE_THEME_NM3");
+                }
+
+                if (customerDeal.get("HOPE_REGION_NM") != null) {
+                    if (themes.isEmpty())
+                        customerDeal.put("TITLE", customerDeal.get("HOPE_REGION_NM") );
+                    else
+                        customerDeal.put("TITLE", customerDeal.get("HOPE_REGION_NM") + "\n(" + themes + ")" );
+                }
+                else {
+
+                    if (!themes.isEmpty())
+                        customerDeal.put("TITLE", "지역미정\n(" + themes + ")" );
+                }
+
+                if (customerDeal.get("WRITER_ID").equals(session.getAttribute("user_id"))) {
+                    customerDeal.put("EDITABLE", "Y");
+                } else {
+                    customerDeal.put("EDITABLE", "N");
+                }
+            }
             model.addAttribute("selected_course", selectedCourse);
-            model.addAttribute("customer_deals", daoCustomerDeal.SelectCustomerDeals(Map.of("COURSE_ID", course_id)));
+            model.addAttribute("customer_deals", customerDeals);
             if (selectedCourse.get("WRITER_ID").equals(session.getAttribute("user_id"))) {
                 editable = true;
             }
@@ -46,9 +88,11 @@ public class CustomerApplication {
             model.addAttribute("selected_course", null);
         }
         if (customer_deal_id != null) {
-            Map<String, Object> selectedCustomerDeal = daoCustomerDeal.SelectCourses(Map.of("CUSTOMER_DEAL_ID", customer_deal_id)).getFirst();
+            Map<String, Object> selectedCustomerDeal = daoCustomerDeal.SelectCustomerDeals(Map.of("CUSTOMER_DEAL_ID", customer_deal_id)).getFirst();
 
             model.addAttribute("selected_customer_deal", selectedCustomerDeal);
+            model.addAttribute("theme_codes", daoCode.SelectCodes(Map.of("CD_KNM", "테마구분코드")));
+            model.addAttribute("region_codes", daoCode.SelectCodes(Map.of("CD_KNM", "지역구분코드")));
         } else {
             model.addAttribute("selected_customer_deal", null);
         }
@@ -80,9 +124,6 @@ public class CustomerApplication {
     public @ResponseBody Map<String, Object> api_remove_course(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestBody Map<String, String > payload) {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
-        System.out.println("-=-==================");
-        System.out.println(payload);
-        System.out.println("-=-==================");
         daoCustomerDeal.UpdateCourse(Map.of("COURSE_ID", course_id, "COURSE_NM", payload.get("COURSE_NM")));
 
         return Map.of("status", "ok");
@@ -107,6 +148,38 @@ public class CustomerApplication {
         return Map.of("status", "ok");
     }
 
+    @PostMapping(path = "/api/save_customer_deal")
+    public @ResponseBody Map<String, Object> api_save_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id, @RequestBody Map<String, String > payload) {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+        Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id));
+
+        param.put("OPEN_YN", payload.getOrDefault("OPEN_YN", null));
+        param.put("BOSS_DEAL_ID", payload.getOrDefault("BOSS_DEAL_ID", null));
+        param.put("HOPE_BOSS_ID", payload.getOrDefault("HOPE_BOSS_ID", null));
+        param.put("HOPE_DT", payload.getOrDefault("HOPE_DT", null));
+        param.put("HOPE_REGION_CD", payload.getOrDefault("HOPE_REGION_CD", null));
+        param.put("HOPE_PEOPLE_CNT", payload.getOrDefault("HOPE_PEOPLE_CNT", null));
+        param.put("HOPE_OTHER_CN", payload.getOrDefault("HOPE_OTHER_CN", null));
+        param.put("HOPE_THEME_CD1", payload.getOrDefault("HOPE_THEME_CD1", null));
+        param.put("HOPE_THEME_CD2", payload.getOrDefault("HOPE_THEME_CD2", null));
+        param.put("HOPE_THEME_CD3", payload.getOrDefault("HOPE_THEME_CD3", null));
+
+
+        daoCustomerDeal.UpdateCustomerDeal(param);
+
+        return Map.of("status", "ok");
+    }
+
+    @PostMapping(path = "/api/open_customer_deal")
+    public @ResponseBody Map<String, Object> api_open_customer_deal(Model model, HttpSession session, @RequestParam(name = "COURSE_ID") String course_id, @RequestParam(name = "CUSTOMER_DEAL_ID") String customer_deal_id) {
+        DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
+        Map<String, Object> param = new HashMap<>(Map.of("COURSE_ID", course_id,"CUSTOMER_DEAL_ID", customer_deal_id));
+        param.put("OPEN_YN", "Y");
+        daoCustomerDeal.UpdateCustomerDeal(param);
+
+        return Map.of("status", "ok");
+    }
+
     public String mypage(Model model, HttpSession session)  {
         DaoCustomerDeal daoCustomerDeal = daoService.getMapper(DaoCustomerDeal.class);
 
@@ -121,3 +194,4 @@ public class CustomerApplication {
     }
 
 }
+

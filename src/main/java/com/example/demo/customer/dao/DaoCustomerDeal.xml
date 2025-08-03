@@ -3,9 +3,53 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.customer.dao.DaoCustomerDeal">
-	<select id="SelectCustomerDeals" resultType="java.util.Map" parameterType="java.util.Map">
+	<select id="SelectCustomerDeals" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
 		SELECT b.CUSTOMER_DEAL_ID
-		     , b.OPEN_YN
+		,      b.OPEN_YN
+		,      a.WRITER_ID
+		,      b.BOSS_DEAL_ID
+		,      b.HOPE_BOSS_ID
+		,      b.HOPE_DT
+		,      b.HOPE_REGION_CD
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '지역구분코드'
+		            AND code.VLD_VAL = b.HOPE_REGION_CD
+		       ) AS HOPE_REGION_NM
+		,      b.HOPE_PEOPLE_CNT
+		,      b.HOPE_OTHER_CN
+		,      b.HOPE_THEME_CD1
+		,      ( SELECT code.VLD_VAL_NM
+                   FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+                    AND code.VLD_VAL = b.HOPE_THEME_CD1
+		       ) AS HOPE_THEME_NM1
+		,      b.HOPE_THEME_CD2
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+		            AND code.VLD_VAL = b.HOPE_THEME_CD2
+		       ) AS HOPE_THEME_NM2
+		,      b.HOPE_THEME_CD3
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+		            AND code.VLD_VAL = b.HOPE_THEME_CD3
+		       ) AS HOPE_THEME_NM3
+		,      ( CASE WHEN LENGTH(IFNULL(b.HOPE_DT, '~')) != 8
+		              THEN '희망일자를 올바르게 적었는지 확인하십시오'
+		              WHEN b.HOPE_PEOPLE_CNT IS NULL
+		              THEN '예상인원을 올바르게 적었는지 확인하십시오'
+		              WHEN b.BOSS_DEAL_ID IS NULL
+		               AND b.HOPE_REGION_CD IS NULL
+		              THEN '지역을 선택해주십시오'
+		              WHEN b.BOSS_DEAL_ID IS NULL
+		               AND b.HOPE_THEME_CD1 IS NULL
+		               AND b.HOPE_THEME_CD2 IS NULL
+		               AND b.HOPE_THEME_CD3 IS NULL
+		              THEN '희망테마를 선택해주십시오'
+		         END
+		       ) AS NEED_WRITE
 		  FROM TB_COURSES a
 		     , TB_CUSTOMER_DEALS b
 		 WHERE 1=1
@@ -36,8 +80,23 @@
 		AND   CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
 	</delete>
 
+	<update id="UpdateCustomerDeal" parameterType="java.util.Map">
+		UPDATE TB_CUSTOMER_DEALS
+		SET OPEN_YN           = IFNULL(#{OPEN_YN}           , OPEN_YN           )
+		,   BOSS_DEAL_ID      = IFNULL(#{BOSS_DEAL_ID}      , BOSS_DEAL_ID      )
+		,   HOPE_BOSS_ID      = IFNULL(#{HOPE_BOSS_ID}      , HOPE_BOSS_ID      )
+		,   HOPE_DT           = IFNULL(#{HOPE_DT}           , HOPE_DT           )
+		,   HOPE_REGION_CD    = IFNULL(#{HOPE_REGION_CD}    , HOPE_REGION_CD    )
+		,   HOPE_PEOPLE_CNT   = IFNULL(#{HOPE_PEOPLE_CNT}   , HOPE_PEOPLE_CNT   )
+		,   HOPE_OTHER_CN     = IFNULL(#{HOPE_OTHER_CN}     , HOPE_OTHER_CN     )
+		,   HOPE_THEME_CD1    = IFNULL(#{HOPE_THEME_CD1}    , HOPE_THEME_CD1    )
+		,   HOPE_THEME_CD2    = IFNULL(#{HOPE_THEME_CD2}    , HOPE_THEME_CD2    )
+		,   HOPE_THEME_CD3    = IFNULL(#{HOPE_THEME_CD3}    , HOPE_THEME_CD3    )
+		WHERE COURSE_ID        = #{COURSE_ID}
+		AND   CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
+	</update>
 
-	<select id="SelectCourses" resultType="java.util.Map" parameterType="java.util.Map">
+	<select id="SelectCourses" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
 		SELECT a.COURSE_ID
 		,      IFNULL(a.COURSE_NM, '새 코스') AS COURSE_NM
 		,      a.WRITER_ID

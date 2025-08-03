@@ -16,16 +16,56 @@
 <div th:fragment="myplace">
     <div class="d-flex flex-column m-1 px-3 py-3 border rounded">
         <h5 class="fw-bold">내 매장정보</h5>
-        <div class="d-flex flex-row">
-            <form class="ms-3 d-flex flex-column" action="" method="post">
-                <h7 class="fw-bold mb-2">저장내용</h7>
-                <textarea class="form-control flex-grow-1" id="ftxtOther" name="DEAL_CN"></textarea>
-                <button id="btnLogin" type="submit" class="btn btn-primary mt-2 align-self-end">
+        <div class="d-flex flex-row column-gap-2">
+            <div class="d-flex flex-column flex-fill">
+                <h7 class="fw-bold mb-2">매장사진</h7>
+                <div  th:each="boss_image: ${boss_image_list}" th:IMAGE_FILE_NAME="${boss_image}">
+                    <img style="width: 200px;" th:src="${'/static/upload/' + boss_image}"/>
+                </div>
+                <form class="mt-2 input-group" method="post" action="/api/upload_file" enctype="multipart/form-data" id="form_upload">
+                    <input class="form-control" type="file" name="imageFile" accept="image/*" required>
+                    <button class="btn btn-primary input-group-text" onclick="$('#onclick').submit()">업로드</button>
+                </form>
+            </div>
+            <div class="d-flex flex-column flex-fill">
+                <h7 class="fw-bold mb-2">상세내용</h7>
+                <label>테마</label>
+                <select id="FORM_BOSS_THEME_CD">
+                    <option th:selected="${boss_theme_cd == null}" value="">매장테마를 선택하세요.</option>
+                    <option th:each="theme_code: ${theme_codes}" th:value="${theme_code['VLD_VAL']}" th:text="${theme_code['VLD_VAL_NM']}"
+                            th:selected="${boss_theme_cd == theme_code['VLD_VAL']}">선택하세요</option>
+                </select>
+                <label class="mt-2">지역</label>
+                <select class="mb-2" id="FORM_BOSS_REGION_CD">
+                    <option th:selected="${boss_region_cd == null}">매장 지역을 선택하세요.</option>
+                    <option th:each="region_code: ${region_codes}" th:value="${region_code['VLD_VAL']}" th:text="${region_code['VLD_VAL_NM']}"
+                            th:selected="${boss_region_cd == region_code['VLD_VAL']}">선택하세요</option>
+                </select>
+
+                <textarea class="form-control flex-grow-1" id="FORM_BOSS_DESC" placeholder="매장설명, 메뉴 등을 입력해주세요."
+                          th:text="${boss_desc}"></textarea>
+                <button type="submit" class="btn btn-primary mt-2 align-self-end" onclick="saveDesc(this, event)">
                     저장하기
                 </button>
-            </form>
+            </div>
         </div>
     </div>
+    <script>
+
+        function saveDesc(dom, e) {
+          e.stopPropagation();
+
+          $post('/api/boss/update_desc',
+            { 'BOSS_DESC'      : document.getElementById('FORM_BOSS_DESC').value
+            , 'BOSS_REGION_CD' : document.getElementById('FORM_BOSS_REGION_CD').value
+            , 'BOSS_THEME_CD'  : document.getElementById('FORM_BOSS_THEME_CD').value
+            },
+            function () {
+              refresh();
+            }
+          );
+        }
+    </script>
 </div>
 <script src="/static/js/bootstrap.bundle.min.js" ></script>
 <script src="/static/js/jquery-3.7.1.min.js" ></script>

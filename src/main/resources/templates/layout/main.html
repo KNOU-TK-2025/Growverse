@@ -14,13 +14,13 @@
 </head>
 <body>
     <div class="d-flex flex-column">
-        <div class="d-flex my-3 pt-auto align-items-end justify-content-center" style="height: 140px">
+        <div class="d-flex pt-auto align-items-end justify-content-center" style="height: 140px">
             <h1 class="text-center" onclick="window.location = '/';">REVERSE ORDER</h1>
         </div>
         <div class="d-flex flex-row mx-auto">
             <div id="container" style="width: 830px" th:insert="~{${screen} :: ${screen_fragment}}">
             </div>
-            <div class="d-flex flex-column" id="menu-bar" style="width: 250px">
+            <div class="d-flex flex-column" id="menu-bar" style="width: 280px">
                 <div class="d-flex flex-column mb-1 mx-1 p-3 pb-2 border rounded">
                     <button id="btnLogin" onclick="window.location = '/login';" type="button" class="btn btn-primary align-self-stretch" style="font-size: 1.4em;" th:if="${session.user_id == null}">
                         로그인
@@ -35,7 +35,7 @@
                             <button id="btnUserModeAdmin" onclick="window.location.href = '/change_user_mode?user_mode=admin';" th:classappend="${session.user_mode} == 'admin' ? ' active' : ''"  type="button"         class="btn btn-sm btn-secondary px-1">관리자</button>
                         </div>
                     </div>
-                    <div class="d-flex flex-row mt-2 mx-auto" th:if="${session.user_id == null}">
+                    <div class="d-flex flex-row mt-2 mx-auto" style="font-size: 0.7em" th:if="${session.user_id == null}">
                         <span>아이디 찾기</span>
                         <span class="mx-2">|</span>
                         <span>비밀번호 찾기</span>

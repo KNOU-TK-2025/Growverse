@@ -19,69 +19,110 @@
           <div class="d-flex flex-row column-gap-3">
             <!------------------------------------------>
             <div class="d-flex flex-fill flex-column">
-              <div class="d-flex">
+              <div class="d-flex fw-bold">
                 <span> 내 코스 </span>
-                <button class="btn btn-sm ms-auto" onclick="addCourse(event)">+</button>
+                <button class="btn btn-sm ms-auto" onclick="addCourse(this, event)">+</button>
               </div>
               <div class="d-flex flex-column align-items-stretch row-gap-2">
                 <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="my_course: ${my_courses}"
-                     th:attr="COURSE_ID=${my_course['COURSE_ID']},COURSE_NM=${my_course['COURSE_NM']}" onclick="selectCourse(event)">
-                  <span th:text="${my_course['COURSE_NM']}" >코스1</span>
-                  <button class="btn ms-auto py-0 px-0" onclick="renameCourse(event)">工</button>
-                  <button class="btn py-0 pe-2" onclick="removeCourse(event)">×</button>
+                     th:attr="COURSE_ID=${my_course['COURSE_ID']},COURSE_NM=${my_course['COURSE_NM']}" onclick="selectCourse(this, event)">
+                  <span class="pe-none" th:text="${my_course['COURSE_NM']}" >코스1</span>
+                  <button class="btn ms-auto py-0 px-0" onclick="renameCourse(this, event)">工</button>
+                  <button class="btn py-0 pe-2" onclick="removeCourse(this, event)">×</button>
                 </div>
               </div>
               <hr class="mt-2 mb-2"></hr>
-              <span class="mb-2">인기 코스</span>
+              <span class="mb-2 fw-bold">인기 코스</span>
               <div class="d-flex flex-column align-items-stretch row-gap-2">
                 <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" th:each="popular_course: ${popular_courses}"
-                     th:attr="COURSE_ID=${popular_course['COURSE_ID']}" onclick="selectCourse(event)">
-                  <span th:text="${popular_course['COURSE_NM']}" >코스1</span>
+                     th:attr="COURSE_ID=${popular_course['COURSE_ID']}" onclick="selectCourse(this, event)">
+                  <span class="pe-none" th:text="${popular_course['COURSE_NM']}" >코스1</span>
                   <button class="btn ms-auto py-0 px-2" th:if="${editable}">▶</button>
                 </div>
               </div>
             </div>
             <!------------------------------------------>
             <div class="d-flex flex-fill flex-column bg-red">
-              <span class="mb-2" th:text="${selected_course != null ? ('구성: ' + selected_course['COURSE_NM']) : '코스 구성' }">코스 구성</span>
+              <span class="mb-2 fw-bold" th:text="${selected_course != null ? ('구성: ' + selected_course['COURSE_NM']) : '코스 구성' }">코스 구성</span>
               <div class="d-flex flex-column align-items-stretch row-gap-2">
-                <div class="d-flex flex-row align-items-center border ps-3 pe-1 py-1" onclick="selectDeal(event)"
-                     th:each="customer_deal: ${customer_deals}" th:attr="COURSE_ID=${selected_course?.['COURSE_ID']},CUSTOMER_DEAL_ID=${customer_deal['CUSTOMER_DEAL_ID']}" >
-                  <span>새 제안서</span>
-                  <button class="btn btn-ms btn-primary ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] == 'Y'}" disabled>매칭중</button>
-                  <button class="btn btn-ms btn-success ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['BOSS_DEAL_ID'] == null}">매칭하기</button>
-                  <button class="btn btn-ms btn-secondary ms-auto py-0 px-2" onclick="change_deal(event)" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['BOSS_DEAL_ID'] != null}" disabled>매칭됨</button>
-                  <button class="btn btn-ms btn-danger ms-1 py-0 px-2" onclick="removeDeal(event)" >×</button>
+                <div class="d-flex flex-row justify-content-end align-items-center border ps-3 pe-1 py-1" onclick="selectDeal(this, event)"
+                     th:each="customer_deal: ${customer_deals}" th:COURSE_ID="${selected_course['COURSE_ID']}" th:CUSTOMER_DEAL_ID="${customer_deal['CUSTOMER_DEAL_ID']}" >
+                  <span class="pe-none me-auto" style="white-space: pre-line" th:text="${customer_deal?.['TITLE'] ?: '새 제안서'}">새 제안서</span>
+                  <div class="d-flex flex-row" th:if="${customer_deal['EDITABLE'] == 'Y'}">
+                    <button class="pe-none btn btn-ms btn-primary py-0 px-2" th:if="${customer_deal['OPEN_YN'] == 'Y' && customer_deal['BOSS_DEAL_ID'] == null}" disabled>매칭중</button>
+                    <button class="pe-none btn btn-ms btn-secondary py-0 px-2" th:if="${customer_deal['OPEN_YN'] == 'Y' && customer_deal['BOSS_DEAL_ID'] != null}" disabled>매칭됨</button>
+
+                    <button class="btn btn-ms btn-secondary py-0 px-2" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['NEED_WRITE'] != null}"
+                            data-bs-toggle="tooltip" data-bs-placement="top" th:aria-disabled="${customer_deal['NEED_WRITE'] != null}" th:title="${customer_deal['NEED_WRITE']}">작성중</button>
+                    <button class="btn btn-ms btn-success py-0 px-2" onclick="openDeal(this, event)" th:if="${customer_deal['OPEN_YN'] != 'Y' && customer_deal['NEED_WRITE'] == null}"
+                            data-bs-toggle="tooltip" data-bs-placement="top" th:text="${customer_deal['HOPE_BOSS_ID'] == null ? '매칭하기' : '예약하기'}">매칭하기</button>
+                    <button class="btn btn-ms btn-danger ms-1 py-0 px-2" onclick="removeDeal(this, event)">×</button>
+                  </div>
                 </div>
-                <button class="btn border py-0 align-self-stretch text-center" th:attr="COURSE_ID=${selected_course?.['COURSE_ID']}" onclick="addDeal(event)" >
+                <button class="btn border py-0 align-self-stretch text-center" th:attr="COURSE_ID=${selected_course?.['COURSE_ID']}" th:if="${selected_course != null}" onclick="addDeal(this, event)" >
                   +
                 </button>
               </div>
             </div>
             <!------------------------------------------>
-            <div class="d-flex flex-fill flex-column">
-              <span class="mb-2 ">상세내용</span>
-              <label>희망일자</label>
-              <input type="text"/>
-              <label>예상인원</label>
-              <input type="number"/>
-              <label>기타내용</label>
-              <textarea></textarea>
-              <hr>
-              <label>매칭하기 </label>
-              <input type="radio"/>
-              <label>매장지정 </label>
-              <input type="radio"/>
-              <label>매장정보</label>
-              <input type="text"/>
-              <label>희망지역</label>
-              <input type="text"/>
+            <div class="d-flex flex-fill flex-column align-items-stretch">
+              <span class="mb-2 fw-bold">상세내용</span>
+              <div class="d-flex flex-column" th:if="${selected_customer_deal != null}">
+                <label>희망일자 (YYYYMMDD) </label>
+                <input type="text" value="20250802" minlength="8" maxlength="8" th:value="${selected_customer_deal['HOPE_DT']}"
+                       id="FORM_HOPE_DT"/>
+                <label class="mt-2">예상인원</label>
+                <input type="number" value="2" min="1" max="999" th:value="${selected_customer_deal['HOPE_PEOPLE_CNT']}"
+                       id="FORM_HOPE_PEOPLE_CNT"/>
+                <label class="mt-2">요청내용</label>
+                <textarea placeholder="[선택] 기타 요청내용 입력" th:text="${selected_customer_deal['HOPE_OTHER_CN']}"
+                          id="FORM_HOPE_OTHER_CN"></textarea>
+                <hr class="mb-2">
+                <div class="mb-2">
+                  <input class="form-check-input" name="radio_deal_type" type="radio" th:checked="${selected_customer_deal['HOPE_BOSS_ID'] == null}"/>
+                  <label class="form-check-label">자동매칭</label>
+                  <span>　</span>
+                  <input class="form-check-input" name="radio_deal_type" type="radio" th:checked="${selected_customer_deal['HOPE_BOSS_ID'] != null}"
+                         id="FORM_HOPE_BOSS_DEAL_ENABLED"/>
+                  <label class="form-check-label">매장지정 </label>
+                </div>
+                <label class="mt-2">선호테마</label>
+                <select class="mb-2" id="FORM_HOPE_THEME_CD1">
+                  <option th:selected="${selected_customer_deal['HOPE_THEME_CD1'] == null}" value="">선호테마 1</option>
+                  <option th:each="theme_code1: ${theme_codes}" th:value="${theme_code1['VLD_VAL']}" th:text="${theme_code1['VLD_VAL_NM']}"
+                          th:selected="${selected_customer_deal['HOPE_THEME_CD1'] == theme_code1['VLD_VAL']}">선택하세요</option>
+                </select>
+                <select class="mb-2" id="FORM_HOPE_THEME_CD2">
+                  <option th:selected="${selected_customer_deal['HOPE_THEME_CD2'] == null}" value="">선호테마 2</option>
+                  <option th:each="theme_code2: ${theme_codes}" th:value="${theme_code2['VLD_VAL']}" th:text="${theme_code2['VLD_VAL_NM']}"
+                          th:selected="${selected_customer_deal['HOPE_THEME_CD2'] == theme_code2['VLD_VAL']}"
+                          th:arai_A="${selected_customer_deal['HOPE_THEME_CD2']}"
+                           th:arai_B="${theme_code2['VLD_VAL']}"
+                  >선택하세요</option>
+                </select>
+                <select id="FORM_HOPE_THEME_CD3">
+                  <option th:selected="${selected_customer_deal['HOPE_THEME_CD3'] == null}" value="">선호테마 3</option>
+                  <option th:each="theme_code3: ${theme_codes}" th:value="${theme_code3['VLD_VAL']}" th:text="${theme_code3['VLD_VAL_NM']}"
+                          th:selected="${selected_customer_deal['HOPE_THEME_CD3'] == theme_code3['VLD_VAL']}">선택하세요</option>
+                </select>
+                <label class="mt-2">지역</label>
+                <select class="mb-2" id="FORM_HOPE_REGION_CD">
+                  <option th:selected="${selected_customer_deal['HOPE_REGION_CD'] == null}">선호지역을 선택하세요.</option>
+                  <option th:each="region_code: ${region_codes}" th:value="${region_code['VLD_VAL']}" th:text="${region_code['VLD_VAL_NM']}"
+                          th:selected="${selected_customer_deal['HOPE_REGION_CD'] == region_code['VLD_VAL']}">선택하세요</option>
+                </select>
+              </div>
+              <button class="btn btn-sm btn-primary ms-auto mt-2" th:COURSE_ID="${selected_course['COURSE_ID']}" th:CUSTOMER_DEAL_ID="${selected_customer_deal['CUSTOMER_DEAL_ID']}"
+                      onclick="saveDeal(this, event)"
+                      th:if="${selected_customer_deal != null && selected_customer_deal['OPEN_YN'] != 'Y' && selected_customer_deal['BOSS_DEAL_ID'] == null}">
+                저장하기
+              </button>
             </div>
             <!------------------------------------------>
           </div>
       </div>
       <script>
-        function addCourse(e) {
+        function addCourse(dom, e) {
           e.stopPropagation();
           $post('/api/add_course',
             null,
@@ -91,14 +132,14 @@
           );
         }
 
-        function selectCourse(e) {
+        function selectCourse(dom, e) {
           e.stopPropagation();
-          window.location = '/open_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID');
+          window.location = '/open_deal?COURSE_ID=' + dom.getAttribute('COURSE_ID');
         }
 
-        function removeCourse(e) {
+        function removeCourse(dom, e) {
           e.stopPropagation();
-          $post('/api/remove_course?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID'),
+          $post('/api/remove_course?COURSE_ID=' + dom.parentElement.getAttribute('COURSE_ID'),
             null,
             function () {
               refresh();
@@ -106,14 +147,14 @@
           );
         }
 
-        function renameCourse(e) {
+        function renameCourse(dom, e) {
           e.stopPropagation();
-          var new_course_nm = prompt('새 코스명을 입력해주세요', e.target.parentElement.getAttribute('COURSE_NM'));
+          var new_course_nm = prompt('새 코스명을 입력해주세요', dom.parentElement.getAttribute('COURSE_NM'));
           if (new_course_nm === null) {
             return;
           }
 
-          $post('/api/rename_course?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID'),
+          $post('/api/rename_course?COURSE_ID=' + dom.parentElement.getAttribute('COURSE_ID'),
             { COURSE_NM: new_course_nm },
             function () {
               refresh();
@@ -121,31 +162,66 @@
           );
         }
 
-        function addDeal(e) {
+        function addDeal(dom, e) {
           e.stopPropagation();
-          $post('/api/add_customer_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID'),
+          $post('/api/add_customer_deal?COURSE_ID=' + dom.getAttribute('COURSE_ID'),
             null,
             function () {
               refresh();
             }
           );
         }
-        function selectDeal(e) {
+        function selectDeal(dom, e) {
           e.stopPropagation();
-          window.location = '/open_deal?COURSE_ID=' + e.target.getAttribute('COURSE_ID')
-                                                    + '&CUSTOMER_DEAL_ID=' + e.target.getAttribute('CUSTOMER_DEAL_ID');
+          window.location = '/open_deal?COURSE_ID=' + dom.getAttribute('COURSE_ID')
+                                                    + '&CUSTOMER_DEAL_ID=' + dom.getAttribute('CUSTOMER_DEAL_ID');
         }
-        function removeDeal(e) {
+        function removeDeal(dom, e) {
           e.stopPropagation();
-          $post('/api/remove_customer_deal?COURSE_ID=' + e.target.parentElement.getAttribute('COURSE_ID')
-                                       + '&CUSTOMER_DEAL_ID=' + e.target.parentElement.getAttribute('CUSTOMER_DEAL_ID'),
+          $post('/api/remove_customer_deal?COURSE_ID=' + dom.parentElement.parentElement.getAttribute('COURSE_ID')
+                                       + '&CUSTOMER_DEAL_ID=' + dom.parentElement.parentElement.getAttribute('CUSTOMER_DEAL_ID'),
             null,
+            function () {
+              refresh();
+            }
+          );
+        }
+        function openDeal(dom, e) {
+          e.stopPropagation();
+          $post('/api/open_customer_deal?COURSE_ID=' + dom.parentElement.parentElement.getAttribute('COURSE_ID')
+                                     + '&CUSTOMER_DEAL_ID=' + dom.parentElement.parentElement.getAttribute('CUSTOMER_DEAL_ID'),
+            null,
+            function () {
+              refresh();
+            }
+          );
+        }
+        function saveDeal(dom, e) {
+          e.stopPropagation();
+
+          $post('/api/save_customer_deal?COURSE_ID=' + dom.getAttribute('COURSE_ID')
+                                     + '&CUSTOMER_DEAL_ID=' + dom.getAttribute('CUSTOMER_DEAL_ID'),
+            { 'HOPE_BOSS_ID'    : null // document.getElementById('FORM_HOPE_BOSS_ID').value
+            , 'HOPE_DT'         : document.getElementById('FORM_HOPE_DT').value
+            , 'HOPE_REGION_CD'  : document.getElementById('FORM_HOPE_REGION_CD').value
+            , 'HOPE_PEOPLE_CNT' : document.getElementById('FORM_HOPE_PEOPLE_CNT').value
+            , 'HOPE_OTHER_CN'   : document.getElementById('FORM_HOPE_OTHER_CN').value
+            , 'HOPE_THEME_CD1'  : document.getElementById('FORM_HOPE_THEME_CD1').value
+            , 'HOPE_THEME_CD2'  : document.getElementById('FORM_HOPE_THEME_CD2').value
+            , 'HOPE_THEME_CD3'  : document.getElementById('FORM_HOPE_THEME_CD3').value
+            },
             function () {
               refresh();
             }
           );
         }
 
+        document.addEventListener('DOMContentLoaded', function () {
+          var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+          tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+          });
+        });
       </script>
     </div>
     <script src="/static/js/bootstrap.bundle.min.js" ></script>

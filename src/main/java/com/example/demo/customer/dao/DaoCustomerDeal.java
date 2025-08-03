@@ -9,6 +9,7 @@ import java.util.Map;
 public interface DaoCustomerDeal {
 	List<Map<String,Object>> SelectCustomerDeals(Map<String, Object> param);
 	void InsertCustomerDeal(Map<String, Object> param);
+	void UpdateCustomerDeal(Map<String, Object> param);
 	void DeleteCustomerDeal(Map<String, Object> param);
 
 	List<Map<String,Object>> SelectCourses(Map<String, Object> param);

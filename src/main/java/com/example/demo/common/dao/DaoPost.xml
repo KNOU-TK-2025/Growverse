@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.common.dao.DaoPost">
-	<select id="Select01" resultType="java.util.Map" parameterType="java.util.Map">
+	<select id="Select01" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
 		SELECT T1.POST_ID
 			 , T1.TITLE
 		     , IFNULL(T1.LIKE_CNT, 0) AS LIKE_CNT

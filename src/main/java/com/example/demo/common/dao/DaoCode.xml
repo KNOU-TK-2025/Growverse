@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.common.dao.DaoCode">
+	<select id="SelectCodes" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
+		SELECT T1.VLD_VAL
+			 , T1.VLD_VAL_NM
+		  FROM TB_CODES T1
+		 WHERE 1=1
+		<if test="CD_KNM != null">
+			AND T1.CD_KNM = #{CD_KNM}
+		</if>
+		 ORDER BY T1.PRT_SNO
+		        , T1.VLD_VAL
+	</select>
+</mapper>

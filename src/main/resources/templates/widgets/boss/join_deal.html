@@ -16,36 +16,65 @@
     <div th:fragment="join_deal">
       <div class="d-flex flex-column m-1 px-3 py-3 border rounded">
         <h5 class="fw-bold">제안서 작성</h5>
-        <div class="d-flex flex-row">
-          <div>
+        <div class="d-flex flex-row column-gap-2">
+          <div class="flex-fill">
             <h7 class="fw-bold mb-2">요청내용</h7>
-            <label for="fdattime" class="form-label">날짜</label>
-            <input type="datetime-local" class="form-control"   th:value="${customer_deal.HOPE_DT}" disabled>
-            <label for="fcmbRegion" class="form-label mt-3">지역</label>
-            <select class="form-select" aria-label="fcmbRegion"  th:value="${customer_deal.HOPE_REGION}" disabled>
-              <option selected>지역을 선택해주세요.</option>
-              <option value="대구시_중구">동성로/서문시장/대구역/경북대/엑스코</option>
-              <option value="대구시_동구1">동대구역/신청동/수성못/범어/라이온즈파크/알파시티/시지</option>
-              <option value="대구시_동구2">대구공항/혁신도시/동촌유원지/팔공산/이사아폴리스/군위</option>
-              <option value="대구시_달서구1">서대구역/북부정류장/평리/비산/칠곡지구/동천동/금호지구</option>
-              <option value="대구시_남구">두류/이월드/본리동/죽전동/서부정류장/앞산공원/안지랑/대명동/봉덕동</option>
-              <option value="대구시_달서구2">성서/계명대/상인동/대곡/현풍/테크노폴리스/가창/달성군</option>
-              <option value="경산시">영남대/대구대/갓바위/하양/진량/자인</option>
-            </select>
-            <label for="ftxtPersonCount" class="form-label mt-3">인원</label>
-            <input type="number" class="form-control"  th:value="${customer_deal.PEOPLE_COUNT}" disabled>
-            <label for="ftxtOther" class="form-label mt-3">기타 내용</label>
-            <textarea class="form-control"  th:value="${customer_deal.OTHER_CN}" disabled></textarea>
+            <div class="d-flex flex-column" th:if="${selected_customer_deal != null}">
+              <span th:text="${'희망일자: ' + selected_customer_deal['HOPE_DT']}">희망일자: 20240101</span>
+              <span th:text="${'예상인원: ' + selected_customer_deal['HOPE_PEOPLE_CNT']}"></span>
+              <span th:text="${'선호테마: ' + selected_customer_deal['HOPE_THEME_NM_LIST']}"></span>
+              <span th:if="${selected_customer_deal['HOPE_BOSS_ID'] == null}">매칭구분: 자동매칭</span>
+              <span th:if="${selected_customer_deal['HOPE_BOSS_ID'] != null}">매칭구분: 매장지정</span>
+              <hr class="my-2"/>
+              <div class="d-flex" th:text="${selected_customer_deal['HOPE_OTHER_CN']}"></div>
+            </div>
           </div>
-          <form class="ms-3 d-flex flex-column" action="" method="post">
-            <h7 class="fw-bold mb-2">제안내용</h7>
-            <textarea class="form-control flex-grow-1" id="ftxtOther" name="DEAL_CN"></textarea>
-            <button id="btnLogin" type="submit" class="btn btn-primary mt-2 align-self-end">
+          <div class="d-flex flex-fill flex-column">
+            <h7 class="fw-bold mb-2">제안서 내용</h7>
+            <label>제안내용</label>
+            <textarea class="form-control flex-grow-1" style="height: 200px;" placeholder="[선택] 세부적으로 제안할 내용을 입력해주세요."
+                      th:text="${selected_customer_deal['BOSS_DEAL_CN']}"></textarea>
+            <button type="submit" class="btn btn-sm btn-primary mt-2 ms-auto align-self-end" onclick="addBossDeal(this, event)" th:if="${selected_customer_deal['DEAL_SENT_YN'] == 'N'}">
               제안하기
             </button>
-          </form>
+            <button type="submit" class="btn btn-sm btn-danger mt-2 ms-auto align-self-end" onclick="removeBossDeal(this, event)" th:if="${selected_customer_deal['DEAL_SENT_YN'] == 'Y'}">
+              취소하기
+            </button>
+            <h7 class="fw-bold mb-2">매장사진/소개</h7>
+            <div class="p-2 border flex-grow-1 mb-2" style="white-space: pre;" th:text="${boss_desc}"></div>
+            <div class="mb-2" th:each="boss_image: ${boss_image_list}" th:IMAGE_FILE_NAME="${boss_image}">
+              <img style="width: 200px;" th:src="${'/static/upload/' + boss_image}"/>
+            </div>
+          </div>
         </div>
       </div>
+      <script>
+
+        function addBossDeal(dom, e) {
+          const params = new URLSearchParams(window.location.search);
+          e.stopPropagation();
+
+          $post('/api/boss/add_boss_deal?CUSTOMER_DEAL_ID=' + params.get('CUSTOMER_DEAL_ID'),
+            { 'BOSS_DEAL_CN' : document.getElementById('FORM_DEAL_CN').value
+            },
+            function () {
+              refresh();
+            }
+          );
+        }
+
+        function removeBossDeal(dom, e) {
+          const params = new URLSearchParams(window.location.search);
+          e.stopPropagation();
+
+          $post('/api/boss/remove_boss_deal?BOSS_DEAL_ID=' + params.get('BOSS_DEAL_ID'),
+            null,
+            function () {
+              refresh();
+            }
+          );
+        }
+      </script>
     </div>
     <script src="/static/js/bootstrap.bundle.min.js" ></script>
     <script src="/static/js/jquery-3.7.1.min.js" ></script>

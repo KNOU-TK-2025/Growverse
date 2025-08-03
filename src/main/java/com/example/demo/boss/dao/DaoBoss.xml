@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.boss.dao.DaoBoss">
+	<select id="SelectBoss" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
+		SELECT a.BOSS_ID
+		,      a.BOSS_NM
+		,      a.REGION_CD
+		,      a.INFO
+		,      a.THEME_CD
+		FROM TB_BOSS a
+		WHERE a.BOSS_ID = #{BOSS_ID}
+	</select>
+
+	<update id="UpdateBoss" parameterType="java.util.Map">
+		UPDATE TB_BOSS
+		SET REGION_CD = IFNULL(#{REGION_CD} , REGION_CD )
+		,   INFO      = IFNULL(#{INFO}      , INFO      )
+		,   THEME_CD  = IFNULL(#{THEME_CD}  , THEME_CD  )
+		WHERE BOSS_ID = #{BOSS_ID}
+	</update>
+</mapper>

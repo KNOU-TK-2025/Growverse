@@ -1,48 +1,79 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.boss.dao.DaoBossDeal">
-	<select id="Select01" resultType="java.util.Map" parameterType="java.util.Map">
-		SELECT a.CUSTOMER_DEAL_ID  AS CUSTOMER_DEAL_ID
-		     , a.STATUS_CD         AS STATUS_CD
-		     , a.CUSTOMER_ID       AS CUSTOMER_ID
-			 , a.BOSS_DEAL_ID      AS BOSS_DEAL_ID
-			 , a.HOPE_DT           AS HOPE_DT
-		     , a.HOPE_REGION       AS HOPE_REGION
-		     , a.PEOPLE_COUNT      AS PEOPLE_COUNT
-		     , a.OTHER_CN          AS OTHER_CN
-		     , ( SELECT COUNT(*)
-		           FROM TB_BOSS_DEALS b
-		          WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+	<select id="SelectDeals" resultType="com.example.demo.common.UppercasedMap" parameterType="java.util.Map">
+		SELECT a.CUSTOMER_DEAL_ID
+		,      a.BOSS_DEAL_ID
+		,      b.BOSS_DEAL_ID  AS MY_BOSS_DEAL_ID
+		,      a.HOPE_DT
+		,      a.HOPE_REGION_CD
+		,      ( SELECT code.VLD_VAL_NM
+		         FROM   TB_CODES code
+		         WHERE  code.CD_KNM = '지역구분코드'
+		         AND    code.VLD_VAL = a.HOPE_REGION_CD
+		       ) AS HOPE_REGION_NM
+		,      a.HOPE_PEOPLE_CNT
+		,      a.HOPE_OTHER_CN
+		,      a.HOPE_THEME_CD1
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+		            AND code.VLD_VAL = a.HOPE_THEME_CD1
+		       ) AS HOPE_THEME_NM1
+		,      a.HOPE_THEME_CD2
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+		            AND code.VLD_VAL = a.HOPE_THEME_CD2
+		       ) AS HOPE_THEME_NM2
+		,      a.HOPE_THEME_CD3
+		,      ( SELECT code.VLD_VAL_NM
+		           FROM TB_CODES code
+		          WHERE code.CD_KNM = '테마구분코드'
+		            AND code.VLD_VAL = a.HOPE_THEME_CD3
+		       ) AS HOPE_THEME_NM3
+		,      ( SELECT COUNT(*)
+		           FROM TB_BOSS_DEALS t
+		          WHERE t.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
 		       ) AS BOSS_DEAL_COUNT
-			, CASE WHEN EXISTS ( SELECT 1
-			                       FROM TB_BOSS_DEALS b
-			                      WHERE b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
-		                            AND b.BOSS_ID = #{BOSS_ID}
-			                   )
-		           THEN 'Y'
-		           ELSE 'N'
-		      END AS DEAL_SENT_YN
-		  FROM TB_CUSTOMER_DEALS a
-		 WHERE a.BOSS_DEAL_ID is null
+		,      CASE WHEN EXISTS ( SELECT 1
+		                          FROM   TB_BOSS_DEALS b
+		                          WHERE  b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+		                          AND    b.BOSS_ID = #{BOSS_ID}
+		                        )
+		            THEN 'Y'
+		            ELSE 'N'
+		       END AS DEAL_SENT_YN
+		,      b.DEAL_CN AS BOSS_DEAL_CN
+		FROM   TB_CUSTOMER_DEALS a
+		LEFT   OUTER JOIN
+		       TB_BOSS_DEALS b
+		ON     b.ORG_CUSTOMER_DEAL_ID = a.CUSTOMER_DEAL_ID
+		AND    b.BOSS_ID              = #{BOSS_ID}
+		WHERE  a.BOSS_DEAL_ID is null
+		AND    a.OPEN_YN = 'Y'
 		<if test="CUSTOMER_DEAL_ID != null">
-		   AND a.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
+			AND a.CUSTOMER_DEAL_ID = #{CUSTOMER_DEAL_ID}
 		</if>
 	</select>
 
-	<insert id="Insert01" parameterType="java.util.Map">
+	<insert id="InsertBossDeal" parameterType="java.util.Map">
 		INSERT INTO TB_BOSS_DEALS (
-		  STATUS_CD
-		, BOSS_ID
+		BOSS_ID
 		, ORG_CUSTOMER_DEAL_ID
 		, DEAL_CN
 		)
 		VALUES (
-		  #{STATUS_CD}
-		, #{BOSS_ID}
+		#{BOSS_ID}
 		, #{ORG_CUSTOMER_DEAL_ID}
 		, #{DEAL_CN}
 		)
+	</insert>
+
+	<insert id="DeleteBossDeal" parameterType="java.util.Map">
+		DELETE FROM TB_BOSS_DEALS
+		WHERE BOSS_DEAL_ID = #{BOSS_DEAL_ID}
 	</insert>
 </mapper>
