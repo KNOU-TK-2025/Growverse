@@ -14,15 +14,28 @@
   </head>
   <body>
     <div th:fragment="default">
-      <div class="d-flex m-1 px-3 py-3 border rounded" style="height: 200px;">
+      <div class="d-flex flex-column m-1 px-3 py-3 border rounded" style="height: 200px;">
         <span class="fw-bold">공지사항</span>
+        <span class="text-secondary mt-2" style="font-size: 0.75em;">공지사항이 없습니다.</span>
       </div>
-      <div class="d-flex m-1 px-3 py-3 border rounded" style="height: 200px;">
+      <div class="d-flex flex-column m-1 px-3 py-3 border rounded" style="height: 200px;">
         <span class="fw-bold">추천코스</span>
+
+        <div class="d-flex flex-row border px-3 py-1 mt-2" th:each="popular_course: ${popular_courses}"
+             th:COURSE_ID="${popular_course['COURSE_ID']}" th:text="${popular_course['COURSE_NM']}"
+             onclick="selectCourse(this, event)">
+        </div>
       </div>
-      <div class="d-flex m-1 px-3 py-3 border rounded" style="height: 200px;">
+      <div class="d-flex flex-column m-1 px-3 py-3 border rounded" style="height: 200px;">
         <span class="fw-bold">베스트 리뷰</span>
+        <span class="text-secondary mt-2" style="font-size: 0.75em;">리뷰가 없습니다.</span>
       </div>
+      <script>
+        function selectCourse(dom, e) {
+          e.stopPropagation();
+          window.location = '/open_deal?COURSE_ID=' + dom.getAttribute('COURSE_ID');
+        }
+      </script>
     </div>
     <div th:fragment="menu_buttons_main">
       <div class="d-flex m-1 p-3 border rounded align-items-center justify-content-center" style="height: 600px;">
